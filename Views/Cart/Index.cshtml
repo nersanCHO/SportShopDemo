@@ -29,9 +29,15 @@ else
                 <tr>
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <img src="@(i.Product?.ImagePath)" alt="" style="width:56px; height:56px; object-fit:cover;" class="rounded" />
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" aria-label="Виж детайли за @(i.Product?.Name)">
+                                <img src="@(i.Product?.ImagePath)" alt="@(i.Product?.Name)" style="width:56px; height:56px; object-fit:cover;" class="rounded" />
+                            </a>
                             <div>
-                                <div class="fw-semibold">@(i.Product?.Name)</div>
+                                <div class="fw-semibold">
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" class="text-decoration-none text-dark">
+                                        @(i.Product?.Name)
+                                    </a>
+                                </div>
                                 <div class="text-muted small">@(i.Product?.Sport) · @(i.Product?.SubCategory)</div>
                             </div>
                         </div>
