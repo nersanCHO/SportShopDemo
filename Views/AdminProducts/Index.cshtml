@@ -1,0 +1,50 @@
+@model List<SportShop.Models.Product>
+@{
+    ViewData["Title"] = "Админ: Продукти";
+}
+
+<h1 class="mb-3">Админ: Продукти</h1>
+
+<div class="mb-3">
+    <a class="btn btn-primary" asp-action="Create">+ Нов продукт</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Няма продукти.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+            <tr>
+                <th>Снимка</th>
+                <th>Име</th>
+                <th>Спорт</th>
+                <th>Подкатегория</th>
+                <th class="text-end">Цена</th>
+                <th>Пол</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td><img src="@p.ImagePath" alt="" style="width:56px; height:56px; object-fit:cover;" class="rounded" /></td>
+                    <td>@p.Name</td>
+                    <td>@p.Sport</td>
+                    <td>@p.SubCategory</td>
+                    <td class="text-end">@p.Price.ToString("0.00") лв.</td>
+                    <td>@p.Gender</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@p.Id">Редакция</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@p.Id">Изтриване</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,37 @@
+@model List<SportShop.Models.Product>
+@{
+    ViewData["Title"] = "Любими";
+}
+
+<h1 class="mb-3">Любими продукти</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Нямаш добавени любими продукти.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        @foreach (var p in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <img class="card-img-top" src="@p.ImagePath" alt="@p.Name" style="object-fit:cover; height:220px;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@p.Name</h5>
+                        <div class="text-muted small">@p.Sport · @p.SubCategory · @p.Gender</div>
+                        <div class="mt-2 fw-semibold">@p.Price.ToString("0.00") лв.</div>
+                    </div>
+                    <div class="card-footer bg-white d-flex gap-2">
+                        <a class="btn btn-outline-primary" asp-controller="Products" asp-action="Details" asp-route-id="@p.Id">Детайли</a>
+                        <form asp-controller="Cart" asp-action="Add" method="post" class="ms-auto">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@p.Id" />
+                            <button class="btn btn-primary" type="submit">В количка</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

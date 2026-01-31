@@ -1,0 +1,27 @@
+@using Microsoft.AspNetCore.Identity
+@using SportShop.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <span class="navbar-text text-light me-2">@User.Identity?.Name</span>
+    </li>
+    <li class="nav-item">
+        <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Products", new { area = "" })" method="post">
+            <button type="submit" class="btn btn-sm btn-outline-light">Изход</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="btn btn-sm btn-outline-light me-2" asp-area="Identity" asp-page="/Account/Register">Регистрация</a>
+    </li>
+    <li class="nav-item">
+        <a class="btn btn-sm btn-light" asp-area="Identity" asp-page="/Account/Login">Вход</a>
+    </li>
+}
+</ul>

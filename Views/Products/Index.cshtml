@@ -1,0 +1,100 @@
+@model List<SportShop.Models.Product>
+@using SportShop.Models
+@{
+    ViewData["Title"] = "Продукти";
+    var sports = ViewBag.Sports as List<string> ?? new();
+    var subs = ViewBag.SubCategories as List<string> ?? new();
+    string? selectedSport = Context.Request.Query["sport"].FirstOrDefault();
+    string? selectedSub = Context.Request.Query["subCategory"].FirstOrDefault();
+    string? selectedGender = Context.Request.Query["gender"].FirstOrDefault();
+    string? q = Context.Request.Query["q"].FirstOrDefault();
+    string? minPrice = Context.Request.Query["minPrice"].FirstOrDefault();
+    string? maxPrice = Context.Request.Query["maxPrice"].FirstOrDefault();
+}
+
+<h1 class="mb-3">Продукти</h1>
+
+<form method="get" class="card card-body mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Търсене</label>
+            <input class="form-control" name="q" value="@q" placeholder="име/описание" />
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Мъже/Жени</label>
+            <select class="form-select" name="gender">
+                <option value="">(всички)</option>
+                <option value="@( (int)GenderTarget.Men )" selected="@(selectedGender == ((int)GenderTarget.Men).ToString())">Мъже</option>
+                <option value="@( (int)GenderTarget.Women )" selected="@(selectedGender == ((int)GenderTarget.Women).ToString())">Жени</option>
+                <option value="@( (int)GenderTarget.Unisex )" selected="@(selectedGender == ((int)GenderTarget.Unisex).ToString())">Унисекс</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Спорт</label>
+            <select class="form-select" name="sport">
+                <option value="">(всички)</option>
+                @foreach (var s in sports)
+                {
+                    <option value="@s" selected="@(selectedSport == s)">@s</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label">Подкатегория</label>
+            <select class="form-select" name="subCategory">
+                <option value="">(всички)</option>
+                @foreach (var sc in subs)
+                {
+                    <option value="@sc" selected="@(selectedSub == sc)">@sc</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-1">
+            <label class="form-label">Мин</label>
+            <input class="form-control" name="minPrice" value="@minPrice" inputmode="decimal" />
+        </div>
+        <div class="col-md-1">
+            <label class="form-label">Макс</label>
+            <input class="form-control" name="maxPrice" value="@maxPrice" inputmode="decimal" />
+        </div>
+
+        <div class="col-md-1 d-grid">
+            <button class="btn btn-primary" type="submit">Филтър</button>
+        </div>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Няма намерени продукти.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        @foreach (var p in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <img class="card-img-top" src="@p.ImagePath" alt="@p.Name" style="object-fit:cover; height:220px;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@p.Name</h5>
+                        <div class="text-muted small">@p.Sport · @p.SubCategory · @p.Gender</div>
+                        <div class="mt-2 fw-semibold">@p.Price.ToString("0.00") лв.</div>
+                    </div>
+                    <div class="card-footer bg-white d-flex gap-2">
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@p.Id">Детайли</a>
+                        <form asp-controller="Cart" asp-action="Add" method="post" class="ms-auto">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@p.Id" />
+                            <button class="btn btn-primary" type="submit">В количка</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
