@@ -79,9 +79,13 @@ else
         {
             <div class="col">
                 <div class="card h-100">
-                    <img class="card-img-top" src="@p.ImagePath" alt="@p.Name" style="object-fit:cover; height:220px;" />
+                    <a asp-action="Details" asp-route-id="@p.Id" aria-label="Виж детайли за @p.Name">
+                        <img class="card-img-top" src="@p.ImagePath" alt="@p.Name" style="object-fit:cover; height:220px;" />
+                    </a>
                     <div class="card-body">
-                        <h5 class="card-title">@p.Name</h5>
+                        <h5 class="card-title">
+                            <a asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none text-dark">@p.Name</a>
+                        </h5>
                         <div class="text-muted small">@p.Sport · @p.SubCategory · @p.Gender</div>
                         <div class="mt-2 fw-semibold">@p.Price.ToString("0.00") лв.</div>
                     </div>
