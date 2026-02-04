@@ -10,6 +10,9 @@
     string? q = Context.Request.Query["q"].FirstOrDefault();
     string? minPrice = Context.Request.Query["minPrice"].FirstOrDefault();
     string? maxPrice = Context.Request.Query["maxPrice"].FirstOrDefault();
+
+    var favIds = ViewBag.FavoriteIds as List<int> ?? new List<int>();
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
 <h1 class="mb-3">Продукти</h1>
@@ -77,10 +80,12 @@ else
     <div class="row row-cols-1 row-cols-md-3 g-3">
         @foreach (var p in Model)
         {
+            var isFav = favIds.Contains(p.Id);
+            var thumb = p.Photos.FirstOrDefault()?.ImagePath ?? p.ImagePath;
             <div class="col">
                 <div class="card h-100">
                     <a asp-action="Details" asp-route-id="@p.Id" aria-label="Виж детайли за @p.Name">
-                        <img class="card-img-top" src="@p.ImagePath" alt="@p.Name" style="object-fit:cover; height:220px;" />
+                        <img class="card-img-top" src="@thumb" alt="@p.Name" style="object-fit:cover; height:220px;" />
                     </a>
                     <div class="card-body">
                         <h5 class="card-title">
@@ -91,6 +96,16 @@ else
                     </div>
                     <div class="card-footer bg-white d-flex gap-2">
                         <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@p.Id">Детайли</a>
+
+                        <form asp-controller="Favorites" asp-action="Toggle" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@p.Id" />
+                            <input type="hidden" name="returnUrl" value="@currentUrl" />
+                            <button class="btn btn-sm @(isFav ? "btn-danger" : "btn-outline-danger")" type="submit" aria-label="Toggle favorite for @p.Name">
+                                @(isFav ? "В любими" : "Добави в любими")
+                            </button>
+                        </form>
+
                         <form asp-controller="Cart" asp-action="Add" method="post" class="ms-auto">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@p.Id" />

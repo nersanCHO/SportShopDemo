@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SportShop.Data;
@@ -8,7 +9,13 @@ namespace SportShop.Controllers;
 public class ProductsController : Controller
 {
     private readonly ApplicationDbContext _db;
-    public ProductsController(ApplicationDbContext db) => _db = db;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public ProductsController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+    {
+        _db = db;
+        _userManager = userManager;
+    }
 
     public async Task<IActionResult> Index(
         GenderTarget? gender,
@@ -41,13 +48,40 @@ public class ProductsController : Controller
         ViewBag.Sports = await _db.Products.Select(p => p.Sport).Distinct().OrderBy(x => x).ToListAsync();
         ViewBag.SubCategories = await _db.Products.Select(p => p.SubCategory).Distinct().OrderBy(x => x).ToListAsync();
 
+        // Load favourite ids for the current user
+        var userId = _userManager.GetUserId(User);
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var favIds = await _db.Favorites.Where(f => f.UserId == userId).Select(f => f.ProductId).ToListAsync();
+            ViewBag.FavoriteIds = favIds;
+        }
+        else
+        {
+            ViewBag.FavoriteIds = new List<int>();
+        }
+
+        // include photos so views can pick first photo
+        products = products.Include(p => p.Photos);
+
         return View(await products.OrderBy(p => p.Name).ToListAsync());
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
+        var product = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
         if (product == null) return NotFound();
+
+        var userId = _userManager.GetUserId(User);
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var exists = await _db.Favorites.AnyAsync(f => f.UserId == userId && f.ProductId == id);
+            ViewBag.IsFavorite = exists;
+        }
+        else
+        {
+            ViewBag.IsFavorite = false;
+        }
+
         return View(product);
     }
 }

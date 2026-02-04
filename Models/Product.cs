@@ -27,4 +27,7 @@ public class Product
 
     [StringLength(260)]
     public string ImagePath { get; set; } = "/images/products/default.png";
+
+    // New: multiple photos for a product
+    public List<ProductPhoto> Photos { get; set; } = new();
 }

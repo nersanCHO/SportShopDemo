@@ -1,15 +1,15 @@
 @model SportShop.Models.Product
 @using SportShop.Models
 @{
-    ViewData["Title"] = "Редакция";
+    ViewData["Title"] = "Редактирай продукт";
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
-<h1 class="mb-3">Редакция</h1>
+<h1 class="mb-3">Редактирай продукт</h1>
 
 <form asp-action="Edit" method="post" enctype="multipart/form-data" class="card card-body">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-
     <div class="row g-3">
         <div class="col-md-6">
             <label class="form-label">Име</label>
@@ -18,12 +18,12 @@
         </div>
         <div class="col-md-3">
             <label class="form-label">Спорт</label>
-            <input asp-for="Sport" class="form-control" />
+            <input asp-for="Sport" class="form-control" placeholder="Напр. Тенис" />
             <span asp-validation-for="Sport" class="text-danger"></span>
         </div>
         <div class="col-md-3">
             <label class="form-label">Подкатегория</label>
-            <input asp-for="SubCategory" class="form-control" />
+            <input asp-for="SubCategory" class="form-control" placeholder="Напр. Ракети" />
             <span asp-validation-for="SubCategory" class="text-danger"></span>
         </div>
 
@@ -36,11 +36,44 @@
             <label class="form-label">Мъже/Жени</label>
             <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<GenderTarget>()"></select>
         </div>
+
+        <div class="col-12">
+            <label class="form-label">Текуща заглавна снимка</label>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <img src="@Model.ImagePath" alt="" class="img-thumbnail" style="width:160px; height:160px; object-fit:cover;" />
+                <div class="form-text">Това е заглавната снимка, показвана като миниатюра и първа в карусела.</div>
+            </div>
+        </div>
+
         <div class="col-md-6">
-            <label class="form-label">Снимка (нова)</label>
-            <input type="file" name="image" class="form-control" accept="image/*" />
-            <div class="form-text">Текуща:</div>
-            <img src="@Model.ImagePath" alt="" style="width:160px; height:160px; object-fit:cover;" class="rounded border" />
+            <label class="form-label">Смяна на заглавната снимка</label>
+            <input type="file" name="titleImage" class="form-control" accept="image/*" />
+            <div class="form-text">Качи нова заглавна снимка, за да замениш текущата.</div>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Текущи допълнителни снимки</label>
+            <div class="d-flex gap-2 flex-wrap mb-2">
+                @foreach (var ph in Model.Photos)
+                {
+                    <div class="position-relative" style="width:120px;">
+                        <img src="@ph.ImagePath" alt="" class="img-thumbnail" style="width:120px; height:120px; object-fit:cover;" />
+                        <form asp-action="DeletePhoto" method="post" class="position-absolute" style="right:0; top:0;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="photoId" value="@ph.Id" />
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit" title="Изтрий">×</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Качи допълнителни снимки</label>
+            <input type="file" name="images" class="form-control" accept="image/*" multiple />
+            <div class="form-text">Може да качиш няколко допълнителни снимки.</div>
         </div>
 
         <div class="col-12">

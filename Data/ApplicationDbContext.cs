@@ -12,6 +12,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Product> Products => Set<Product>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
+    // New DbSet for product photos
+    public DbSet<ProductPhoto> ProductPhotos => Set<ProductPhoto>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -24,5 +26,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<CartItem>()
             .HasIndex(c => new { c.UserId, c.ProductId })
             .IsUnique();
+
+        // relationship: Product -> ProductPhoto (many)
+        builder.Entity<ProductPhoto>()
+            .HasOne(pp => pp.Product)
+            .WithMany(p => p.Photos)
+            .HasForeignKey(pp => pp.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -34,7 +34,7 @@ public class FavoritesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Toggle(int productId)
+    public async Task<IActionResult> Toggle(int productId, string? returnUrl = null)
     {
         var userId = _userManager.GetUserId(User)!;
 
@@ -45,6 +45,11 @@ public class FavoritesController : Controller
             _db.Favorites.Remove(existing);
 
         await _db.SaveChangesAsync();
+
+        // If a local returnUrl was provided, go back there (e.g. cart); otherwise go to product details
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+
         return RedirectToAction("Details", "Products", new { id = productId });
     }
 }

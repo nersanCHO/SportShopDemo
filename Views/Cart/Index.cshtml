@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Количка";
     decimal total = ViewBag.Total ?? 0m;
+    var favIds = ViewBag.FavoriteIds as List<int> ?? new List<int>();
+    var cartIndexUrl = Url.Action("Index", "Cart");
 }
 
 <h1 class="mb-3">Количка</h1>
@@ -26,11 +28,13 @@ else
             <tbody>
             @foreach (var i in Model)
             {
+                var isFav = favIds.Contains(i.ProductId);
+                var thumb = i.Product?.Photos?.FirstOrDefault()?.ImagePath ?? i.Product?.ImagePath;
                 <tr>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" aria-label="Виж детайли за @(i.Product?.Name)">
-                                <img src="@(i.Product?.ImagePath)" alt="@(i.Product?.Name)" style="width:56px; height:56px; object-fit:cover;" class="rounded" />
+                                <img src="@(thumb)" alt="@(i.Product?.Name)" style="width:56px; height:56px; object-fit:cover;" class="rounded" />
                             </a>
                             <div>
                                 <div class="fw-semibold">
@@ -39,6 +43,17 @@ else
                                     </a>
                                 </div>
                                 <div class="text-muted small">@(i.Product?.Sport) · @(i.Product?.SubCategory)</div>
+
+                                <div class="mt-1">
+                                    <form asp-controller="Favorites" asp-action="Toggle" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@i.ProductId" />
+                                        <input type="hidden" name="returnUrl" value="@cartIndexUrl" />
+                                        <button class="btn btn-sm @(isFav ? "btn-danger" : "btn-outline-danger")" type="submit">
+                                            @(isFav ? "В любими" : "Добави в любими")
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </td>

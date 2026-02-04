@@ -29,6 +29,15 @@ public class CartController : Controller
             .ToListAsync();
 
         ViewBag.Total = items.Sum(i => (i.Product?.Price ?? 0m) * i.Quantity);
+
+        // Load favourite product ids for the current user so the view can render a different button state
+        var favoriteIds = await _db.Favorites
+            .Where(f => f.UserId == userId)
+            .Select(f => f.ProductId)
+            .ToListAsync();
+
+        ViewBag.FavoriteIds = favoriteIds;
+
         return View(items);
     }
 

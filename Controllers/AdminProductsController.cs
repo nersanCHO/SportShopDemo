@@ -25,12 +25,36 @@ public class AdminProductsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Product model, IFormFile? image)
+    public async Task<IActionResult> Create(Product model, IFormFile? titleImage, IFormFileCollection? images)
     {
         if (!ModelState.IsValid) return View(model);
 
-        if (image is { Length: > 0 })
-            model.ImagePath = await SaveImageAsync(image);
+        // If admin provided a separate title image, save it and set legacy ImagePath.
+        if (titleImage is { Length: > 0 })
+        {
+            var saved = await SaveImageAsync(titleImage);
+            model.ImagePath = saved;
+            // also add it to Photos so it appears in carousel
+            model.Photos.Add(new ProductPhoto { ImagePath = saved });
+        }
+
+        // Save uploaded additional images
+        if (images != null && images.Any(i => i.Length > 0))
+        {
+            foreach (var img in images.Where(i => i.Length > 0))
+            {
+                var saved = await SaveImageAsync(img);
+                model.Photos.Add(new ProductPhoto { ImagePath = saved });
+            }
+
+            // if no separate titleImage uploaded, use first uploaded additional image as legacy ImagePath
+            if (string.IsNullOrEmpty(model.ImagePath))
+            {
+                var first = model.Photos.FirstOrDefault();
+                if (first != null)
+                    model.ImagePath = first.ImagePath;
+            }
+        }
 
         _db.Products.Add(model);
         await _db.SaveChangesAsync();
@@ -39,19 +63,19 @@ public class AdminProductsController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        var p = await _db.Products.FindAsync(id);
+        var p = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
         if (p == null) return NotFound();
         return View(p);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Product model, IFormFile? image)
+    public async Task<IActionResult> Edit(int id, Product model, IFormFile? titleImage, IFormFileCollection? images)
     {
         if (id != model.Id) return BadRequest();
         if (!ModelState.IsValid) return View(model);
 
-        var existing = await _db.Products.FindAsync(id);
+        var existing = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
         if (existing == null) return NotFound();
 
         existing.Name = model.Name;
@@ -61,8 +85,34 @@ public class AdminProductsController : Controller
         existing.Gender = model.Gender;
         existing.Description = model.Description;
 
-        if (image is { Length: > 0 })
-            existing.ImagePath = await SaveImageAsync(image);
+        // Replace title image if provided
+        if (titleImage is { Length: > 0 })
+        {
+            // delete previous title image file if stored in images/products
+            TryDeleteFile(existing.ImagePath);
+
+            var saved = await SaveImageAsync(titleImage);
+            existing.ImagePath = saved;
+
+            // add the new title image to photos as well (avoid duplicates if same image uploaded twice)
+            if (!existing.Photos.Any(pp => pp.ImagePath == saved))
+                existing.Photos.Add(new ProductPhoto { ImagePath = saved });
+        }
+
+        // Add additional uploaded images
+        if (images != null && images.Any(i => i.Length > 0))
+        {
+            foreach (var img in images.Where(i => i.Length > 0))
+            {
+                var saved = await SaveImageAsync(img);
+                existing.Photos.Add(new ProductPhoto { ImagePath = saved });
+            }
+
+            // ensure legacy ImagePath points to first photo if not set
+            var first = existing.Photos.FirstOrDefault();
+            if (first != null && string.IsNullOrEmpty(existing.ImagePath))
+                existing.ImagePath = first.ImagePath;
+        }
 
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
@@ -79,12 +129,38 @@ public class AdminProductsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var p = await _db.Products.FindAsync(id);
+        var p = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
         if (p == null) return NotFound();
+
+        // delete files from disk for associated photos and main image
+        foreach (var ph in p.Photos)
+        {
+            TryDeleteFile(ph.ImagePath);
+        }
+        TryDeleteFile(p.ImagePath);
 
         _db.Products.Remove(p);
         await _db.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
+    }
+
+    // delete a product photo
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeletePhoto(int photoId, int productId, string? returnUrl = null)
+    {
+        var photo = await _db.ProductPhotos.FirstOrDefaultAsync(pp => pp.Id == photoId && pp.ProductId == productId);
+        if (photo != null)
+        {
+            TryDeleteFile(photo.ImagePath);
+            _db.ProductPhotos.Remove(photo);
+            await _db.SaveChangesAsync();
+        }
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+
+        return RedirectToAction(nameof(Edit), new { id = productId });
     }
 
     private async Task<string> SaveImageAsync(IFormFile image)
@@ -99,5 +175,23 @@ public class AdminProductsController : Controller
         await image.CopyToAsync(stream);
 
         return $"/images/products/{fileName}";
+    }
+
+    private void TryDeleteFile(string? imagePath)
+    {
+        if (string.IsNullOrEmpty(imagePath)) return;
+        if (!imagePath.StartsWith("/images/products/")) return;
+
+        var fileName = imagePath.Replace("/images/products/", "");
+        var filePath = Path.Combine(_env.WebRootPath, "images", "products", fileName);
+        try
+        {
+            if (System.IO.File.Exists(filePath))
+                System.IO.File.Delete(filePath);
+        }
+        catch
+        {
+            // ignore deletion failures
+        }
     }
 }

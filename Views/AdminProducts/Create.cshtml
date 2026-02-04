@@ -34,10 +34,17 @@
             <label class="form-label">Мъже/Жени</label>
             <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<GenderTarget>()"></select>
         </div>
+
         <div class="col-md-6">
-            <label class="form-label">Снимка</label>
-            <input type="file" name="image" class="form-control" accept="image/*" />
-            <div class="form-text">Ако не качиш, ще се ползва default.png</div>
+            <label class="form-label">Основна снимка (заглавна)</label>
+            <input type="file" name="titleImage" class="form-control" accept="image/*" />
+            <div class="form-text">Качи основната (заглавна) снимка, която ще се показва като thumb и първа в карусела.</div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Допълнителни снимки (може повече от една)</label>
+            <input type="file" name="images" class="form-control" accept="image/*" multiple />
+            <div class="form-text">Качи допълнителни снимки. Ако не качиш основна снимка, първата тук ще бъде използвана като заглавна.</div>
         </div>
 
         <div class="col-12">

@@ -1,12 +1,52 @@
 @model SportShop.Models.Product
 @{
     ViewData["Title"] = "Детайли";
+    var isFav = ViewBag.IsFavorite as bool? ?? false;
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+
+    // build simple carousel items (use Photos if present, otherwise fallback to ImagePath)
+    var images = Model.Photos?.Select(ph => ph.ImagePath).ToList() ?? new List<string>();
+    if (!images.Any())
+    {
+        images.Add(Model.ImagePath);
+    }
 }
 
 <div class="row g-4">
     <div class="col-md-5">
-        <img src="@Model.ImagePath" alt="@Model.Name" class="img-fluid rounded" style="width:100%; object-fit:cover;" />
+        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                @for (int i = 0; i < images.Count; i++)
+                {
+                    var img = images[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "")">
+                        <img src="@img" alt="@Model.Name" class="d-block w-100 img-fluid rounded" style="width:100%; object-fit:cover;" />
+                    </div>
+                }
+            </div>
+            @if (images.Count > 1)
+            {
+                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+
+                <div class="mt-2 d-flex gap-2 flex-wrap">
+                    @for (int i = 0; i < images.Count; i++)
+                    {
+                        <button class="btn btn-light p-0 border" style="width:64px; height:64px; overflow:hidden;" type="button" data-bs-target="#productCarousel" data-bs-slide-to="@i" aria-label="Go to image @(i+1)">
+                            <img src="@images[i]" alt="" style="width:100%; height:100%; object-fit:cover;" />
+                        </button>
+                    }
+                </div>
+            }
+        </div>
     </div>
+
     <div class="col-md-7">
         <h1>@Model.Name</h1>
         <div class="text-muted">@Model.Sport · @Model.SubCategory · @Model.Gender</div>
@@ -30,7 +70,10 @@
                 <form asp-controller="Favorites" asp-action="Toggle" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="productId" value="@Model.Id" />
-                    <button class="btn btn-outline-danger" type="submit">Добави/Премахни от Любими</button>
+                    <input type="hidden" name="returnUrl" value="@currentUrl" />
+                    <button class="btn @(isFav ? "btn-danger" : "btn-outline-danger")" type="submit">
+                        @(isFav ? "В любими" : "Добави в любими")
+                    </button>
                 </form>
             }
             else
