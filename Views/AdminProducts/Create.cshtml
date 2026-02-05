@@ -2,6 +2,18 @@
 @using SportShop.Models
 @{
     ViewData["Title"] = "Нов продукт";
+
+    // Preset mapping of sports -> subcategories (edit as needed)
+    var sportMap = new Dictionary<string, string[]>
+    {
+        ["Running"] = new[] { "Shoes", "Apparel", "Accessories" },
+        ["Football"] = new[] { "Cleats", "Shin Guards", "Balls", "Apparel" },
+        ["Fitness"] = new[] { "Equipment", "Apparel", "Supplements" },
+        ["Tennis"] = new[] { "Rackets", "Balls", "Shoes", "Apparel" },
+        ["Cycling"] = new[] { "Bikes", "Helmets", "Apparel", "Accessories" }
+    };
+
+    var sportMapJson = System.Text.Json.JsonSerializer.Serialize(sportMap);
 }
 
 <h1 class="mb-3">Нов продукт</h1>
@@ -14,14 +26,25 @@
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
+
         <div class="col-md-3">
             <label class="form-label">Спорт</label>
-            <input asp-for="Sport" class="form-control" placeholder="Напр. Тенис" />
+            <select asp-for="Sport" id="SportSelect" class="form-select">
+                <option value="">Избери спорт...</option>
+                @foreach (var s in sportMap.Keys)
+                {
+                    <option value="@s" selected="@(Model.Sport == s ? "selected" : null)">@s</option>
+                }
+            </select>
             <span asp-validation-for="Sport" class="text-danger"></span>
         </div>
+
         <div class="col-md-3">
             <label class="form-label">Подкатегория</label>
-            <input asp-for="SubCategory" class="form-control" placeholder="Напр. Ракети" />
+            <select asp-for="SubCategory" id="SubCategorySelect" class="form-select">
+                <option value="">Избери подкатегория...</option>
+                @* JS will populate options on load; this keeps markup for model binding/validation *@
+            </select>
             <span asp-validation-for="SubCategory" class="text-danger"></span>
         </div>
 
@@ -44,7 +67,7 @@
         <div class="col-md-6">
             <label class="form-label">Допълнителни снимки (може повече от една)</label>
             <input type="file" name="images" class="form-control" accept="image/*" multiple />
-            <div class="form-text">Качи допълнителни снимки. Ако не качиш основна снимка, първата тук ще бъде използвана като заглавна.</div>
+            <div class="form-text">Качи допълнителни снимки. Ако не качиш основна снимка, първата от тези ще бъде зададена като заглавна.</div>
         </div>
 
         <div class="col-12">
@@ -61,4 +84,41 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // mapping injected from server
+        const mapping = @Html.Raw(sportMapJson);
+
+        const sportSelect = document.getElementById('SportSelect');
+        const subSelect = document.getElementById('SubCategorySelect');
+
+        function populateSubcategories(selectedSport, selectedSub) {
+            // clear existing options
+            subSelect.innerHTML = '';
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Избери подкатегория...';
+            subSelect.appendChild(placeholder);
+
+            if (!selectedSport || !mapping[selectedSport]) return;
+
+            mapping[selectedSport].forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub;
+                opt.textContent = sub;
+                if (sub === selectedSub) opt.selected = true;
+                subSelect.appendChild(opt);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // populate using the current model values (if any)
+            populateSubcategories(sportSelect.value, '@(Model.SubCategory ?? "")');
+
+            // when sport changes, update subcategories and clear previous selection
+            sportSelect.addEventListener('change', function () {
+                populateSubcategories(this.value, '');
+            });
+        });
+    </script>
 }
