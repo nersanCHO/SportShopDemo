@@ -17,72 +17,74 @@ else
     <div class="table-responsive">
         <table class="table align-middle">
             <thead>
-            <tr>
-                <th>Продукт</th>
-                <th class="text-end">Цена</th>
-                <th class="text-center">Количество</th>
-                <th class="text-end">Сума</th>
-                <th></th>
-            </tr>
+                <tr>
+                    <th>Продукт</th>
+                    <th class="text-end">Цена</th>
+                    <th class="text-center">Количество</th>
+                    <th class="text-end">Сума</th>
+                    <th></th>
+                </tr>
             </thead>
             <tbody>
-            @foreach (var i in Model)
-            {
-                var isFav = favIds.Contains(i.ProductId);
-                var thumb = i.Product?.Photos?.FirstOrDefault()?.ImagePath ?? i.Product?.ImagePath;
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" aria-label="Виж детайли за @(i.Product?.Name)">
-                                <img src="@(thumb)" alt="@(i.Product?.Name)" style="width:56px; height:56px; object-fit:cover;" class="rounded" />
-                            </a>
-                            <div>
-                                <div class="fw-semibold">
-                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" class="text-decoration-none text-dark">
-                                        @(i.Product?.Name)
-                                    </a>
-                                </div>
-                                <div class="text-muted small">@(i.Product?.Sport) · @(i.Product?.SubCategory)</div>
+                @foreach (var i in Model)
+                {
+                    var isFav = favIds.Contains(i.ProductId);
+                    var thumb = i.Product?.Photos?.FirstOrDefault()?.ImagePath ?? i.Product?.ImagePath;
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" aria-label="Виж детайли за @(i.Product?.Name)">
+                                    <img src="@(thumb)" alt="@(i.Product?.Name)" style="width:56px; height:56px; object-fit:cover;" class="rounded" />
+                                </a>
+                                <div>
+                                    <div class="fw-semibold">
+                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" class="text-decoration-none text-dark">
+                                            @(i.Product?.Name)
+                                        </a>
+                                    </div>
+                                    <div class="text-muted small">
+                                        @(i.Product?.Sport) · @(i.Product?.SubCategory) · Размер: @(i.Product != null ? i.Product.Size.ToString() : "")
+                                    </div>
 
-                                <div class="mt-1">
-                                    <form asp-controller="Favorites" asp-action="Toggle" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="productId" value="@i.ProductId" />
-                                        <input type="hidden" name="returnUrl" value="@cartIndexUrl" />
-                                        <button class="btn btn-sm @(isFav ? "btn-danger" : "btn-outline-danger")" type="submit">
-                                            @(isFav ? "В любими" : "Добави в любими")
-                                        </button>
-                                    </form>
+                                    <div class="mt-1">
+                                        <form asp-controller="Favorites" asp-action="Toggle" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="productId" value="@i.ProductId" />
+                                            <input type="hidden" name="returnUrl" value="@cartIndexUrl" />
+                                            <button class="btn btn-sm @(isFav ? "btn-danger" : "btn-outline-danger")" type="submit">
+                                                @(isFav ? "В любими" : "Добави в любими")
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="text-end">@((i.Product?.Price ?? 0m).ToString("0.00")) лв.</td>
-                    <td class="text-center">
-                        <div class="d-inline-flex align-items-center gap-2">
-                            <form asp-action="Decrease" method="post">
+                        </td>
+                        <td class="text-end">@((i.Product?.Price ?? 0m).ToString("0.00")) лв.</td>
+                        <td class="text-center">
+                            <div class="d-inline-flex align-items-center gap-2">
+                                <form asp-action="Decrease" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="cartItemId" value="@i.Id" />
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit">-</button>
+                                </form>
+                                <span class="fw-semibold">@i.Quantity</span>
+                                <form asp-action="Add" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productId" value="@i.ProductId" />
+                                    <button class="btn btn-sm btn-outline-secondary" type="submit">+</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="text-end">@(((i.Product?.Price ?? 0m) * i.Quantity).ToString("0.00")) лв.</td>
+                        <td class="text-end">
+                            <form asp-action="Remove" method="post">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="cartItemId" value="@i.Id" />
-                                <button class="btn btn-sm btn-outline-secondary" type="submit">-</button>
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Премахни</button>
                             </form>
-                            <span class="fw-semibold">@i.Quantity</span>
-                            <form asp-action="Add" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="productId" value="@i.ProductId" />
-                                <button class="btn btn-sm btn-outline-secondary" type="submit">+</button>
-                            </form>
-                        </div>
-                    </td>
-                    <td class="text-end">@(((i.Product?.Price ?? 0m) * i.Quantity).ToString("0.00")) лв.</td>
-                    <td class="text-end">
-                        <form asp-action="Remove" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="cartItemId" value="@i.Id" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Премахни</button>
-                        </form>
-                    </td>
-                </tr>
-            }
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>

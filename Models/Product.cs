@@ -4,6 +4,16 @@ namespace SportShop.Models;
 
 public enum GenderTarget { Men = 1, Women = 2, Unisex = 3 }
 
+public enum ProductSize
+{
+    Universal = 0,
+    XS = 1,
+    S = 2,
+    M = 3,
+    L = 4,
+    XL = 5
+}
+
 public class Product
 {
     public int Id { get; set; }
@@ -22,12 +32,14 @@ public class Product
 
     public GenderTarget Gender { get; set; } = GenderTarget.Unisex;
 
+    public ProductSize Size { get; set; } = ProductSize.Universal;
+
     [StringLength(800)]
     public string? Description { get; set; }
 
     [StringLength(260)]
     public string ImagePath { get; set; } = "/images/products/default.png";
 
-    // New: multiple photos for a product
+    // multiple photos for a product
     public List<ProductPhoto> Photos { get; set; } = new();
 }

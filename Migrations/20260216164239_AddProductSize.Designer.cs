@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SportShop.Data;
 
@@ -11,9 +12,11 @@ using SportShop.Data;
 namespace SportShop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260216164239_AddProductSize")]
+    partial class AddProductSize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,9 +303,6 @@ namespace SportShop.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
 
                     b.Property<string>("Sport")
                         .IsRequired()

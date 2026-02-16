@@ -36,6 +36,10 @@
             <label class="form-label">Мъже/Жени</label>
             <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<GenderTarget>()"></select>
         </div>
+        <div class="col-md-3">
+            <label class="form-label">Размер</label>
+            <select asp-for="Size" class="form-select" asp-items="Html.GetEnumSelectList<ProductSize>()"></select>
+        </div>
 
         <div class="col-12">
             <label class="form-label">Текуща заглавна снимка</label>

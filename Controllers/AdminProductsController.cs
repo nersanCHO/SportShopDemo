@@ -63,6 +63,7 @@ public class AdminProductsController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
+
         var p = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
         if (p == null) return NotFound();
         return View(p);
@@ -77,7 +78,7 @@ public class AdminProductsController : Controller
 
         var existing = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
         if (existing == null) return NotFound();
-
+        existing.Size = model.Size;
         existing.Name = model.Name;
         existing.Sport = model.Sport;
         existing.SubCategory = model.SubCategory;
