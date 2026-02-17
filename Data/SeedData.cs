@@ -14,7 +14,7 @@ public static class SeedData
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var context = services.GetRequiredService<ApplicationDbContext>();
 
-        await context.Database.MigrateAsync();
+       
 
         // Roles
         string[] roles = { "Admin", "Client" };
