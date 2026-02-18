@@ -69,11 +69,11 @@ public static class SeedData
                 Gender = GenderTarget.Unisex,
                 Size = ProductSize.M,
                 Description = "Responsive running shoes built for daily training.",
-                ImagePath = "/images/products/HM6803-101_01.jpg",
+                ImagePath = "/images/HM6803-101_01.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/products/running-shoe-profile-9097098.jpg" },
-                    new ProductPhoto { ImagePath = "/images/products/shoe-3059711.jpg" }
+                    new ProductPhoto { ImagePath = "/images/running-shoe-profile-9097098.jpg" },
+                    new ProductPhoto { ImagePath = "/images/shoe-3059711.jpg" }
                 }
             },
             new Product
@@ -85,11 +85,11 @@ public static class SeedData
                 Gender = GenderTarget.Men,
                 Size = ProductSize.L,
                 Description = "Precision football boots for maximum control.",
-                ImagePath = "/images/products/shoe-3059711.jpg",
+                ImagePath = "/images/shoe-3059711.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/products/HM6803-101_01.jpg" },
-                    new ProductPhoto { ImagePath = "/images/products/running-shoe-profile-9097098.jpg" }
+                    new ProductPhoto { ImagePath = "/images/HM6803-101_01.jpg" },
+                    new ProductPhoto { ImagePath = "/images/running-shoe-profile-9097098.jpg" }
                 }
             },
             new Product
@@ -101,11 +101,11 @@ public static class SeedData
                 Gender = GenderTarget.Unisex,
                 Size = ProductSize.S,
                 Description = "Lightweight training tee for workouts.",
-                ImagePath = "/images/products/a2369736-01bc-4edc-9a09-753859dc15d0.jpg",
+                ImagePath = "/images/images.png",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/products/default.png" },
-                    new ProductPhoto { ImagePath = "/images/products/child-hands-tie-up-shoe-laces-27875976.jpg" }
+                    new ProductPhoto { ImagePath = "/images/default.png" },
+                    new ProductPhoto { ImagePath = "/images/child-hands-tie-up-shoe-laces-27875976.jpg" }
                 }
             },
             new Product
@@ -117,11 +117,11 @@ public static class SeedData
                 Gender = GenderTarget.Women,
                 Size = ProductSize.M,
                 Description = "Comfortable compression leggings.",
-                ImagePath = "/images/products/running-shoe-profile-9097098.jpg",
+                ImagePath = "/images/running-shoe-profile-9097098.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/products/a2369736-01bc-4edc-9a09-753859dc15d0.jpg" },
-                    new ProductPhoto { ImagePath = "/images/products/default.png" }
+                    new ProductPhoto { ImagePath = "/images/images.png" },
+                    new ProductPhoto { ImagePath = "/images/default.png" }
                 }
             },
             new Product
@@ -133,11 +133,11 @@ public static class SeedData
                 Gender = GenderTarget.Unisex,
                 Size = ProductSize.Universal,
                 Description = "Breathable socks for everyday running.",
-                ImagePath = "/images/products/child-hands-tie-up-shoe-laces-27875976.jpg",
+                ImagePath = "/images/child-hands-tie-up-shoe-laces-27875976.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/products/running-shoe-profile-9097098.jpg" },
-                    new ProductPhoto { ImagePath = "/images/products/HM6803-101_01.jpg" }
+                    new ProductPhoto { ImagePath = "/images/running-shoe-profile-9097098.jpg" },
+                    new ProductPhoto { ImagePath = "/images/HM6803-101_01.jpg" }
                 }
             },
             new Product
@@ -149,11 +149,11 @@ public static class SeedData
                 Gender = GenderTarget.Men,
                 Size = ProductSize.XL,
                 Description = "Lightweight jacket for windy weather.",
-                ImagePath = "/images/products/default.png",
+                ImagePath = "/images/default.png",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/products/a2369736-01bc-4edc-9a09-753859dc15d0.jpg" },
-                    new ProductPhoto { ImagePath = "/images/products/shoe-3059711.jpg" }
+                    new ProductPhoto { ImagePath = "/images/images.png" },
+                    new ProductPhoto { ImagePath = "/images/shoe-3059711.jpg" }
                 }
             }
         );
