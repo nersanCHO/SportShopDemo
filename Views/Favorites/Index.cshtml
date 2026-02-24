@@ -1,37 +1,79 @@
 @model List<SportShop.Models.Product>
 @{
     ViewData["Title"] = "Любими";
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
-<h1 class="mb-3">Любими продукти</h1>
+<div class="ss-hero-mini mb-4">
+    <div class="ss-hero-inner d-flex flex-wrap gap-3 align-items-end justify-content-between">
+        <div>
+            <h1 class="mb-1"><i class="bi bi-heart-fill"></i> Любими</h1>
+            <div class="opacity-75">Запази това, което ти харесва – после добави в количката за секунди.</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-light btn-sm" asp-controller="Products" asp-action="Index"><i class="bi bi-grid"></i> Продукти</a>
+            <a class="btn btn-outline-light btn-sm" asp-controller="Cart" asp-action="Index"><i class="bi bi-bag"></i> Количка</a>
+        </div>
+    </div>
+</div>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">Нямаш добавени любими продукти.</div>
+    <div class="alert alert-info">
+        Нямаш добавени любими продукти.
+        <a asp-controller="Products" asp-action="Index" class="alert-link ms-1">Разгледай продуктите</a>.
+    </div>
 }
 else
 {
     <div class="row row-cols-1 row-cols-md-3 g-3">
         @foreach (var p in Model)
         {
+            var thumb = p.Photos?.FirstOrDefault()?.ImagePath ?? p.ImagePath;
+
             <div class="col">
-                <div class="card h-100">
-                    <a asp-controller="Products" asp-action="Details" asp-route-id="@p.Id" aria-label="Виж детайли за @p.Name">
-                        <img class="card-img-top" src="@p.ImagePath" alt="@p.Name" style="object-fit:cover; height:220px;" />
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a class="text-decoration-none text-body" asp-controller="Products" asp-action="Details" asp-route-id="@p.Id">@p.Name</a>
-                        </h5>
-                        <div class="text-muted small">@p.Sport · @p.SubCategory · @p.Gender</div>
-                        <div class="mt-2 fw-semibold">@p.Price.ToString("0.00") лв.</div>
+                <div class="card h-100 ss-card">
+                    <div class="position-relative">
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@p.Id" aria-label="Виж детайли за @p.Name">
+                            <img class="card-img-top ss-card-img" src="@thumb" alt="@p.Name" />
+                        </a>
+
+                        <div class="position-absolute top-0 start-0 p-2 d-flex gap-2 flex-wrap">
+                            <span class="badge rounded-pill ss-badge"><i class="bi bi-activity"></i> @p.Sport</span>
+                            <span class="badge rounded-pill ss-badge">@p.SubCategory</span>
+                        </div>
+
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <form asp-controller="Favorites" asp-action="Toggle" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@p.Id" />
+                                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                <button class="btn btn-sm btn-outline-light" type="submit" title="Премахни от любими">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="card-footer bg-white d-flex gap-2">
-                        <a class="btn btn-outline-primary" asp-controller="Products" asp-action="Details" asp-route-id="@p.Id">Детайли</a>
+
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <h5 class="card-title mb-1">
+                                <a class="text-decoration-none text-body" asp-controller="Products" asp-action="Details" asp-route-id="@p.Id">@p.Name</a>
+                            </h5>
+                            <span class="ss-price fw-semibold"><i class="bi bi-cash-coin"></i> @p.Price.ToString("0.00") лв.</span>
+                        </div>
+                        <div class="ss-muted small">@p.Gender · Размер: @p.Size</div>
+                    </div>
+
+                    <div class="card-footer bg-white d-flex gap-2 align-items-center">
+                        <a class="btn btn-outline-primary" asp-controller="Products" asp-action="Details" asp-route-id="@p.Id">
+                            <i class="bi bi-eye"></i> Детайли
+                        </a>
+
                         <form asp-controller="Cart" asp-action="Add" method="post" class="ms-auto">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@p.Id" />
-                            <button class="btn btn-primary" type="submit">В количка</button>
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-bag-plus"></i> В количка</button>
                         </form>
                     </div>
                 </div>

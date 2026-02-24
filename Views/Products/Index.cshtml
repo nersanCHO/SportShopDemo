@@ -1,5 +1,6 @@
 @model List<SportShop.Models.Product>
 @using SportShop.Models
+
 @{
     ViewData["Title"] = "Продукти";
     var sports = ViewBag.Sports as List<string> ?? new();
@@ -15,9 +16,22 @@
     var currentUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
-<h1 class="mb-3">Продукти</h1>
+<div class="ss-hero mb-4">
+    <div class="ss-hero-inner">
+        <div class="d-flex flex-wrap gap-3 align-items-end justify-content-between">
+            <div>
+                <h1 class="mb-1">Продукти</h1>
+                <div class="opacity-75">Екипировка и обувки за всеки спорт – бързо, лесно, удобно.</div>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn btn-light btn-sm" asp-controller="Cart" asp-action="Index"><i class="bi bi-bag"></i> Количка</a>
+                <a class="btn btn-outline-light btn-sm" asp-controller="Favorites" asp-action="Index"><i class="bi bi-heart"></i> Любими</a>
+            </div>
+        </div>
+    </div>
+</div>
 
-<form method="get" class="card card-body mb-4">
+<form method="get" class="card card-body mb-4 ss-card">
     <div class="row g-3 align-items-end">
         <div class="col-md-3">
             <label class="form-label">Търсене</label>
@@ -65,8 +79,11 @@
             <input class="form-control" name="maxPrice" value="@maxPrice" inputmode="decimal" />
         </div>
 
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary" type="submit"><i class="bi bi-funnel"></i> Филтър</button>
+        </div>
         <div class="col-md-1 d-grid">
-            <button class="btn btn-primary" type="submit">Филтър</button>
+            <a class="btn ss-btn-soft" href="@Context.Request.Path" title="Изчисти филтрите"><i class="bi bi-arrow-counterclockwise"></i></a>
         </div>
     </div>
 </form>
@@ -81,35 +98,52 @@ else
         @foreach (var p in Model)
         {
             var isFav = favIds.Contains(p.Id);
-            var thumb = p.Photos.FirstOrDefault()?.ImagePath ?? p.ImagePath;
+            var thumb = p.Photos?.FirstOrDefault()?.ImagePath ?? p.ImagePath;
+
             <div class="col">
-                <div class="card h-100">
-                    <a asp-action="Details" asp-route-id="@p.Id" aria-label="Виж детайли за @p.Name">
-                        <img class="card-img-top" src="@thumb" alt="@p.Name" style="object-fit:cover; height:220px;" />
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none text-dark">@p.Name</a>
-                        </h5>
-                        <div class="text-muted small">@p.Sport · @p.SubCategory · @p.Gender</div>
-                        <div class="mt-2 fw-semibold">@p.Price.ToString("0.00") лв.</div>
+                <div class="card h-100 ss-card">
+                    <div class="position-relative">
+                        <a asp-action="Details" asp-route-id="@p.Id" aria-label="Виж детайли за @p.Name">
+                            <img class="card-img-top ss-card-img" src="@thumb" alt="@p.Name" />
+                        </a>
+
+                        <div class="position-absolute top-0 start-0 p-2 d-flex gap-2 flex-wrap">
+                            <span class="badge rounded-pill ss-badge"><i class="bi bi-activity"></i> @p.Sport</span>
+                            <span class="badge rounded-pill ss-badge">@p.SubCategory</span>
+                        </div>
                     </div>
-                    <div class="card-footer bg-white d-flex gap-2">
-                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@p.Id">Детайли</a>
+
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <h5 class="card-title mb-1">
+                                <a asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none text-dark">@p.Name</a>
+                            </h5>
+                            <span class="ss-price fw-semibold" title="Цена">
+                                <i class="bi bi-cash-coin"></i>
+                                @p.Price.ToString("0.00") лв.
+                            </span>
+                        </div>
+                        <div class="ss-muted small">@p.Gender · Размер: @p.Size</div>
+                    </div>
+
+                    <div class="card-footer bg-white d-flex align-items-center gap-2">
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@p.Id">
+                            <i class="bi bi-eye"></i> Детайли
+                        </a>
 
                         <form asp-controller="Favorites" asp-action="Toggle" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@p.Id" />
                             <input type="hidden" name="returnUrl" value="@currentUrl" />
-                            <button class="btn btn-sm @(isFav ? "btn-danger" : "btn-outline-danger")" type="submit" aria-label="Toggle favorite for @p.Name">
-                                @(isFav ? "В любими" : "Добави в любими")
+                            <button class="btn btn-outline-danger" type="submit" title="Любими">
+                                <i class="bi @(isFav ? "bi-heart-fill" : "bi-heart")"></i>
                             </button>
                         </form>
 
                         <form asp-controller="Cart" asp-action="Add" method="post" class="ms-auto">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@p.Id" />
-                            <button class="btn btn-primary" type="submit">В количка</button>
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-bag-plus"></i> В количка</button>
                         </form>
                     </div>
                 </div>

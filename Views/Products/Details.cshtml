@@ -4,7 +4,6 @@
     var isFav = ViewBag.IsFavorite as bool? ?? false;
     var currentUrl = Context.Request.Path + Context.Request.QueryString;
 
-    // build simple carousel items (use Photos if present, otherwise fallback to ImagePath)
     var images = Model.Photos?.Select(ph => ph.ImagePath).ToList() ?? new List<string>();
     if (!images.Any())
     {
@@ -14,75 +13,97 @@
 
 <div class="row g-4">
     <div class="col-md-5">
-        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                @for (int i = 0; i < images.Count; i++)
-                {
-                    var img = images[i];
-                    <div class="carousel-item @(i == 0 ? "active" : "")">
-                        <img src="@img" alt="@Model.Name" class="d-block w-100 img-fluid rounded" style="width:100%; object-fit:cover;" />
+        <div class="card ss-card">
+            <div class="card-body">
+                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @for (int i = 0; i < images.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="@images[i]" alt="@Model.Name" class="d-block w-100 img-fluid rounded"
+                                     style="width:100%; object-fit:cover; aspect-ratio: 4 / 3;" />
+                            </div>
+                        }
                     </div>
-                }
-            </div>
-            @if (images.Count > 1)
-            {
-                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
 
-                <div class="mt-2 d-flex gap-2 flex-wrap">
-                    @for (int i = 0; i < images.Count; i++)
+                    @if (images.Count > 1)
                     {
-                        <button class="btn btn-light p-0 border" style="width:64px; height:64px; overflow:hidden;" type="button" data-bs-target="#productCarousel" data-bs-slide-to="@i" aria-label="Go to image @(i + 1)">
-                            <img src="@images[i]" alt="" style="width:100%; height:100%; object-fit:cover;" />
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
                         </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+
+                        <div class="mt-3 d-flex gap-2 flex-wrap">
+                            @for (int i = 0; i < images.Count; i++)
+                            {
+                                <button class="btn btn-light p-0 border" style="width:64px; height:64px; overflow:hidden;"
+                                        type="button" data-bs-target="#productCarousel" data-bs-slide-to="@i" aria-label="Go to image @(i + 1)">
+                                    <img src="@images[i]" alt="" style="width:100%; height:100%; object-fit:cover;" />
+                                </button>
+                            }
+                        </div>
                     }
                 </div>
-            }
+            </div>
         </div>
     </div>
 
     <div class="col-md-7">
-        <h1>@Model.Name</h1>
-        <div class="text-muted">
-            @Model.Sport · @Model.SubCategory · @Model.Gender · Размер: @Model.Size
-        </div>
-        <div class="fs-3 fw-semibold mt-2">@Model.Price.ToString("0.00") лв.</div>
+        <div class="card ss-card">
+            <div class="card-body">
+                <h1 class="mb-1">@Model.Name</h1>
 
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
-        {
-            <p class="mt-3">@Model.Description</p>
-        }
+                <div class="ss-muted">
+                    <span class="badge rounded-pill ss-badge me-1"><i class="bi bi-activity"></i> @Model.Sport</span>
+                    <span class="badge rounded-pill ss-badge me-1">@Model.SubCategory</span>
+                    <span class="badge rounded-pill ss-badge me-1">@Model.Gender</span>
+                    <span class="badge rounded-pill ss-badge">Размер: @Model.Size</span>
+                </div>
 
-        <div class="d-flex gap-2 mt-4 flex-wrap">
-            <a class="btn btn-outline-secondary" asp-action="Index">Назад</a>
+                <div class="mt-3">
+                    <span class="ss-price fs-5 fw-semibold">
+                        <i class="bi bi-cash-coin"></i> @Model.Price.ToString("0.00") лв.
+                    </span>
+                </div>
 
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <form asp-controller="Cart" asp-action="Add" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    <button class="btn btn-primary" type="submit">Добави в количка</button>
-                </form>
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p class="mt-3">@Model.Description</p>
+                }
 
-                <form asp-controller="Favorites" asp-action="Toggle" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    <input type="hidden" name="returnUrl" value="@currentUrl" />
-                    <button class="btn @(isFav ? "btn-danger" : "btn-outline-danger")" type="submit">
-                        @(isFav ? "В любими" : "Добави в любими")
-                    </button>
-                </form>
-            }
-            else
-            {
-                <div class="alert alert-warning mb-0">За да добавяш в количка/любими, влез в профила си.</div>
-            }
+                <div class="d-flex gap-2 mt-4 flex-wrap">
+                    <a class="btn ss-btn-soft" asp-action="Index"><i class="bi bi-arrow-left"></i> Назад</a>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-controller="Cart" asp-action="Add" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-bag-plus"></i> Добави в количка</button>
+                        </form>
+
+                        <form asp-controller="Favorites" asp-action="Toggle" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="returnUrl" value="@currentUrl" />
+                            <button class="btn btn-outline-danger" type="submit">
+                                <i class="bi @(isFav ? "bi-heart-fill" : "bi-heart")"></i>
+                                @(isFav ? "В любими" : "Добави в любими")
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning mb-0">
+                            <i class="bi bi-exclamation-triangle"></i> За да добавяш в количка/любими, влез в профила си.
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
 </div>
