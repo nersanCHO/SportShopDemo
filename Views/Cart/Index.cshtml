@@ -43,7 +43,8 @@ else
                         {
                             var isFav = favIds.Contains(i.ProductId);
                             var p = i.Product;
-                            var thumb = p?.Photos?.FirstOrDefault()?.ImagePath ?? p?.ImagePath ?? "";
+                            // Prefer main ImagePath; fallback to first photo and then empty/default
+                            var thumb = p?.ImagePath ?? p?.Photos?.FirstOrDefault()?.ImagePath ?? "/images/products/default.png";
                             var price = p?.Price ?? 0m;
                             var lineTotal = price * i.Quantity;
 

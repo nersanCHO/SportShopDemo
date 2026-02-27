@@ -4,10 +4,28 @@
     var isFav = ViewBag.IsFavorite as bool? ?? false;
     var currentUrl = Context.Request.Path + Context.Request.QueryString;
 
-    var images = Model.Photos?.Select(ph => ph.ImagePath).ToList() ?? new List<string>();
-    if (!images.Any())
+    // Ensure the title/main ImagePath is shown first in the carousel,
+    // then append additional photos (avoid duplicates). Fallback to a default.
+    var images = new List<string>();
+    if (!string.IsNullOrWhiteSpace(Model.ImagePath))
     {
         images.Add(Model.ImagePath);
+    }
+
+    if (Model.Photos != null)
+    {
+        foreach (var ph in Model.Photos)
+        {
+            if (!string.IsNullOrWhiteSpace(ph.ImagePath) && !images.Contains(ph.ImagePath))
+            {
+                images.Add(ph.ImagePath);
+            }
+        }
+    }
+
+    if (!images.Any())
+    {
+        images.Add("/images/products/default.png");
     }
 }
 

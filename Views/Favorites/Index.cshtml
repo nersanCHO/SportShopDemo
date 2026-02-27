@@ -29,7 +29,8 @@ else
     <div class="row row-cols-1 row-cols-md-3 g-3">
         @foreach (var p in Model)
         {
-            var thumb = p.Photos?.FirstOrDefault()?.ImagePath ?? p.ImagePath;
+            // Prefer main ImagePath for thumb; fall back to first Photo then default
+            var thumb = !string.IsNullOrWhiteSpace(p.ImagePath) ? p.ImagePath : p.Photos?.FirstOrDefault()?.ImagePath ?? "/images/products/default.png";
 
             <div class="col">
                 <div class="card h-100 ss-card">
