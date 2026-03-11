@@ -58,7 +58,7 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // ✅ Add seed products (6), each has 2+ Photos (not counting main ImagePath)
+        
         context.Products.AddRange(
             new Product
             {
@@ -69,11 +69,13 @@ public static class SeedData
                 Gender = GenderTarget.Unisex,
                 Size = ProductSize.M,
                 Description = "Responsive running shoes built for daily training.",
-                ImagePath = "/images/HM6803-101_01.jpg",
+                ImagePath = "/images/NikeAirZoomPegasus40/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/running-shoe-profile-9097098.jpg" },
-                    new ProductPhoto { ImagePath = "/images/shoe-3059711.jpg" }
+                    new ProductPhoto { ImagePath = "/images/NikeAirZoomPegasus40/2.jpg" },
+                    new ProductPhoto { ImagePath = "/images/NikeAirZoomPegasus40/3.jpg" },
+                    new ProductPhoto { ImagePath = "/images/NikeAirZoomPegasus40/4.jpg" }
+
                 }
             },
             new Product
@@ -85,11 +87,13 @@ public static class SeedData
                 Gender = GenderTarget.Men,
                 Size = ProductSize.L,
                 Description = "Precision football boots for maximum control.",
-                ImagePath = "/images/shoe-3059711.jpg",
+                ImagePath = "/images/AdidasPredatorEdge/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/HM6803-101_01.jpg" },
-                    new ProductPhoto { ImagePath = "/images/running-shoe-profile-9097098.jpg" }
+                    new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/2.jpg" },
+                    new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/3.jpg" },
+                    new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/4.jpg" },
+
                 }
             },
             new Product
@@ -101,29 +105,16 @@ public static class SeedData
                 Gender = GenderTarget.Unisex,
                 Size = ProductSize.S,
                 Description = "Lightweight training tee for workouts.",
-                ImagePath = "/images/images.png",
+                ImagePath = "/images/TrainingTShirtDryFit/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/default.png" },
-                    new ProductPhoto { ImagePath = "/images/child-hands-tie-up-shoe-laces-27875976.jpg" }
+                    new ProductPhoto { ImagePath = "/images/TrainingTShirtDryFit/2.jpg" },
+                    new ProductPhoto { ImagePath = "/images/TrainingTShirtDryFit/3.jpg" },
+                    
                 }
             },
-            new Product
-            {
-                Name = SeedPrefix + "Compression Leggings",
-                Sport = "Fitness",
-                SubCategory = "Apparel",
-                Price = 39.99m,
-                Gender = GenderTarget.Women,
-                Size = ProductSize.M,
-                Description = "Comfortable compression leggings.",
-                ImagePath = "/images/running-shoe-profile-9097098.jpg",
-                Photos = new List<ProductPhoto>
-                {
-                    new ProductPhoto { ImagePath = "/images/images.png" },
-                    new ProductPhoto { ImagePath = "/images/default.png" }
-                }
-            },
+            
+            
             new Product
             {
                 Name = SeedPrefix + "Sport Socks Pro",
@@ -133,11 +124,11 @@ public static class SeedData
                 Gender = GenderTarget.Unisex,
                 Size = ProductSize.Universal,
                 Description = "Breathable socks for everyday running.",
-                ImagePath = "/images/child-hands-tie-up-shoe-laces-27875976.jpg",
+                ImagePath = "/images/SportSocksPro/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/running-shoe-profile-9097098.jpg" },
-                    new ProductPhoto { ImagePath = "/images/HM6803-101_01.jpg" }
+                    new ProductPhoto { ImagePath = "/images/SportSocksPro/2.jpg" },
+
                 }
             },
             new Product
@@ -149,11 +140,11 @@ public static class SeedData
                 Gender = GenderTarget.Men,
                 Size = ProductSize.XL,
                 Description = "Lightweight jacket for windy weather.",
-                ImagePath = "/images/default.png",
+                ImagePath = "/images/OutdoorWindJacket/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/images.png" },
-                    new ProductPhoto { ImagePath = "/images/shoe-3059711.jpg" }
+                    new ProductPhoto { ImagePath = "/images/OutdoorWindJacket.jpg" },
+                   
                 }
             }
         );
