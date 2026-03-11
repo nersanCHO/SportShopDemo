@@ -157,3 +157,52 @@ main.container {
     border: 1px solid rgba(15,23,42,.12);
     background: rgba(15,23,42,.03);
 }
+
+/* Cart-specific tweaks: smaller thumbnails and compact item rows */
+.ss-thumb {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: block;
+    border: 1px solid rgba(15,23,42,.06);
+    background: #fff;
+}
+
+@media (max-width: 768px) {
+    .ss-thumb {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+/* Compact item row */
+.ss-line {
+    padding-top: .5rem !important;
+    padding-bottom: .5rem !important;
+    padding-left: .75rem !important;
+    padding-right: .75rem !important;
+}
+
+/* Product name truncation so long names don't wrap and push layout */
+.ss-product-name {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Product meta (smaller, truncated) */
+.ss-product-meta {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Ensure flex children can shrink properly */
+.min-w-0 {
+    min-width: 0;
+}

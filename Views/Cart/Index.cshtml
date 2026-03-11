@@ -48,27 +48,27 @@ else
                             var price = p?.Price ?? 0m;
                             var lineTotal = price * i.Quantity;
 
-                            <div class="p-3 rounded-4 border ss-line" style="border-color: rgba(15,23,42,.12) !important;">
+                            <div class="p-2 rounded-3 border ss-line" style="border-color: rgba(15,23,42,.12) !important;">
                                 <div class="d-flex gap-3 align-items-start">
-                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" aria-label="Виж детайли">
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" aria-label="Виж детайли" class="d-block">
                                         <img src="@thumb" alt="@(p?.Name)" class="ss-thumb" />
                                     </a>
 
-                                    <div class="flex-grow-1">
+                                    <div class="flex-grow-1 min-w-0">
                                         <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start">
-                                            <div>
+                                            <div class="min-w-0">
                                                 <div class="fw-semibold">
-                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" class="text-decoration-none text-dark">
+                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" class="text-decoration-none text-dark ss-product-name">
                                                         @(p?.Name)
                                                     </a>
                                                 </div>
-                                                <div class="text-muted small">
+                                                <div class="text-muted small text-truncate ss-product-meta">
                                                     @(p?.Sport) · @(p?.SubCategory) · @(p?.Gender) · Размер: @(p != null ? p.Size.ToString() : "")
                                                 </div>
                                             </div>
 
-                                            <div class="text-end">
-                                                <div class="ss-price fw-semibold">
+                                            <div class="text-end ms-2">
+                                                <div class="ss-price fw-semibold small">
                                                     <i class="bi bi-cash-coin"></i> @price.ToString("0.00") лв.
                                                 </div>
                                                 <div class="text-muted small mt-1">Сума: <span class="fw-semibold">@lineTotal.ToString("0.00")</span> лв.</div>
@@ -78,7 +78,7 @@ else
                                         <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
                                             <!-- Qty control -->
                                             <div class="d-inline-flex align-items-center gap-2">
-                                                <form asp-action="Decrease" method="post">
+                                                <form asp-action="Decrease" method="post" class="m-0 p-0">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="cartItemId" value="@i.Id" />
                                                     <button class="btn btn-sm btn-outline-secondary" type="submit" aria-label="Намали"><i class="bi bi-dash"></i></button>
@@ -86,7 +86,7 @@ else
 
                                                 <span class="fw-semibold">@i.Quantity</span>
 
-                                                <form asp-action="Add" method="post">
+                                                <form asp-action="Add" method="post" class="m-0 p-0">
                                                     @Html.AntiForgeryToken()
                                                     <input type="hidden" name="productId" value="@i.ProductId" />
                                                     <button class="btn btn-sm btn-outline-secondary" type="submit" aria-label="Увеличи"><i class="bi bi-plus"></i></button>
@@ -94,18 +94,18 @@ else
                                             </div>
 
                                             <!-- Fav toggle -->
-                                            <form asp-controller="Favorites" asp-action="Toggle" method="post">
+                                            <form asp-controller="Favorites" asp-action="Toggle" method="post" class="m-0 p-0">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="productId" value="@i.ProductId" />
                                                 <input type="hidden" name="returnUrl" value="@cartIndexUrl" />
                                                 <button class="btn btn-sm btn-outline-danger" type="submit" title="Любими">
                                                     <i class="bi @(isFav ? "bi-heart-fill" : "bi-heart")"></i>
-                                                    @(isFav ? "В любими" : "Добави в любими")
+                                                    @(isFav ? "В любими" : "Любими")
                                                 </button>
                                             </form>
 
                                             <!-- Remove -->
-                                            <form asp-action="Remove" method="post" class="ms-auto">
+                                            <form asp-action="Remove" method="post" class="ms-auto m-0 p-0">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="cartItemId" value="@i.Id" />
                                                 <button class="btn btn-sm btn-outline-danger" type="submit">
