@@ -17,7 +17,6 @@
 </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Identity\Pages\Account\" />
     <Folder Include="wwwroot\images\AdidasPredatorEdge\" />
     <Folder Include="wwwroot\images\NikeAirZoomPegasus40\" />
   </ItemGroup>
