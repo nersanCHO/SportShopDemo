@@ -245,7 +245,7 @@ namespace SportShop.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("SportShop.Models.Favorite", b =>
@@ -270,7 +270,7 @@ namespace SportShop.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("Favorites");
+                    b.ToTable("Favorites", (string)null);
                 });
 
             modelBuilder.Entity("SportShop.Models.Product", b =>
@@ -301,9 +301,6 @@ namespace SportShop.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
-
                     b.Property<string>("Sport")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -316,7 +313,7 @@ namespace SportShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("SportShop.Models.ProductPhoto", b =>
@@ -339,7 +336,7 @@ namespace SportShop.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductPhotos");
+                    b.ToTable("ProductPhotos", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

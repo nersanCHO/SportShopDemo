@@ -6,6 +6,8 @@ using SportShop.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+// Add Razor Pages so Identity's default UI (Areas/Identity) is available
+builder.Services.AddRazorPages();
 
 // Determine connection string (use configured DefaultConnection if present,
 // otherwise fall back to a LocalDB default)
