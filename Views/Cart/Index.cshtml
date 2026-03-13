@@ -19,6 +19,11 @@
     </div>
 </div>
 
+@if (TempData["OrderMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["OrderMessage"]</div>
+}
+
 @if (!Model.Any())
 {
     <div class="alert alert-info">
@@ -43,7 +48,6 @@ else
                         {
                             var isFav = favIds.Contains(i.ProductId);
                             var p = i.Product;
-                            // Prefer main ImagePath; fallback to first photo and then empty/default
                             var thumb = p?.ImagePath ?? p?.Photos?.FirstOrDefault()?.ImagePath ?? "/images/products/default.png";
                             var price = p?.Price ?? 0m;
                             var lineTotal = price * i.Quantity;
@@ -146,15 +150,48 @@ else
                         </div>
                     </div>
 
-                    <button class="btn btn-primary w-100 mt-3" type="button" disabled>
-                        <i class="bi bi-credit-card"></i> Checkout (демо)
+                    <button class="btn btn-primary w-100 mt-3" type="button" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+                        <i class="bi bi-credit-card"></i> Checkout
                     </button>
 
                     <div class="text-muted small mt-2">
-                        Ако искаш, мога да ти направя и “fake checkout” страница само за проекта.
+                        Това е демонстрация. След потвърждение, поръчката ще бъде записана като имейл (.eml) в папката <code>wwwroot/orders</code>.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 }
+
+<!-- Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content ss-card">
+            <div class="modal-header">
+                <h5 class="modal-title" id="checkoutModalLabel"><i class="bi bi-credit-card"></i> Финализирай поръчката</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Checkout" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Име и фамилия</label>
+                        <input name="FullName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Адрес</label>
+                        <textarea name="Address" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Телефон</label>
+                        <input name="Phone" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отказ</button>
+                    <button type="submit" class="btn btn-primary">Изпрати поръчката</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
