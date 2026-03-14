@@ -30,15 +30,15 @@ public class LoginModel : PageModel
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Имейл")]
+        [Display(Name = "пїЅпїЅпїЅпїЅпїЅ")]
         public string Email { get; set; } = string.Empty;
 
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Парола")]
+        [Display(Name = "пїЅпїЅпїЅпїЅпїЅпїЅ")]
         public string Password { get; set; } = string.Empty;
 
-        [Display(Name = "Запомни ме")]
+        [Display(Name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ")]
         public bool RememberMe { get; set; }
     }
 
@@ -72,7 +72,7 @@ public class LoginModel : PageModel
             return RedirectToPage("./Lockout");
         }
 
-        ModelState.AddModelError(string.Empty, "Грешен опит за вход.");
+        ModelState.AddModelError(string.Empty, "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ.");
         return Page();
     }
 }

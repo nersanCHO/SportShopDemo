@@ -1,5 +1,6 @@
 @page
 @model SportShop.Areas.Identity.Pages.Account.RegisterModel
+@inject Microsoft.AspNetCore.Identity.UserManager<SportShop.Models.ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Регистрация";
     var returnUrl = Model.ReturnUrl ?? Url.Content("~/");
@@ -20,6 +21,16 @@
             <div class="card-body">
                 <form method="post" asp-route-returnUrl="@returnUrl" class="needs-validation" novalidate>
                     <h5 class="mb-3 fw-semibold">Създаване на потребителски акаунт</h5>
+
+                    @* Show warning if the email is already registered after a POST *@
+                    @if (ViewContext.HttpContext.Request.Method == "POST")
+                    {
+                        var _exists = await UserManager.FindByEmailAsync(Model.Input?.Email ?? string.Empty);
+                        if (_exists != null)
+                        {
+                            <div class="alert alert-danger">Акаунт с този имейл вече съществува.</div>
+                        }
+                    }
 
                     <div class="mb-3">
                         <label asp-for="Input.Email" class="form-label">Електронна поща</label>

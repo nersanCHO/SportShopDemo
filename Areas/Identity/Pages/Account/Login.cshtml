@@ -1,5 +1,6 @@
 @page
 @model SportShop.Areas.Identity.Pages.Account.LoginModel
+@inject Microsoft.AspNetCore.Identity.UserManager<SportShop.Models.ApplicationUser> UserManager
 @{
     ViewData["Title"] = "Вход";
     var returnUrl = Model.ReturnUrl ?? Url.Content("~/");
@@ -20,6 +21,16 @@
             <div class="card-body">
                 <form method="post" asp-route-returnUrl="@returnUrl" class="needs-validation" novalidate>
                     <h5 class="mb-3 fw-semibold">Вход в акаунта</h5>
+
+                    @* Show helpful warning when POST failed and the account does not exist *@
+                    @if (ViewContext.HttpContext.Request.Method == "POST")
+                    {
+                        var _exists = await UserManager.FindByEmailAsync(Model.Input?.Email ?? string.Empty);
+                        if (_exists == null)
+                        {
+                            <div class="alert alert-warning">Акаунт с този имейл не съществува.</div>
+                        }
+                    }
 
                     <div class="mb-3">
                         <label asp-for="Input.Email" class="form-label">Електронна поща</label>
