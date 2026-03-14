@@ -1,15 +1,15 @@
 @page
 @model SportShop.Areas.Identity.Pages.Account.LoginModel
 @{
-    ViewData["Title"] = "Вход";
+    ViewData["Title"] = "Р’С…РѕРґ";
     var returnUrl = Model.ReturnUrl ?? Url.Content("~/");
 }
 
 <div class="ss-hero-mini mb-4">
     <div class="ss-hero-inner d-flex flex-wrap gap-3 align-items-end justify-content-between">
         <div>
-            <h1 class="mb-1"><i class="bi bi-box-arrow-in-right"></i> Вход</h1>
-            <div class="opacity-75">Влез с твоя акаунт, за да продължиш.</div>
+            <h1 class="mb-1"><i class="bi bi-box-arrow-in-right"></i> Р’С…РѕРґ</h1>
+            <div class="opacity-75">Р’Р»РµР·С‚Рµ РІ РїСЂРѕС„РёР»Р° СЃРё, Р·Р° РґР° РїСЂРѕРґСЉР»Р¶РёС‚Рµ.</div>
         </div>
     </div>
 </div>
@@ -19,34 +19,34 @@
         <div class="card ss-card">
             <div class="card-body">
                 <form method="post" asp-route-returnUrl="@returnUrl" class="needs-validation" novalidate>
-                    <h5 class="mb-3 fw-semibold">Влез в акаунта си</h5>
+                    <h5 class="mb-3 fw-semibold">Р’С…РѕРґ РІ Р°РєР°СѓРЅС‚Р°</h5>
 
                     <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label"></label>
-                        <input asp-for="Input.Email" class="form-control" />
+                        <label asp-for="Input.Email" class="form-label">Р•Р»РµРєС‚СЂРѕРЅРЅР° РїРѕС‰Р°</label>
+                        <input asp-for="Input.Email" type="email" class="form-control" />
                         <span asp-validation-for="Input.Email" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Input.Password" class="form-label"></label>
-                        <input asp-for="Input.Password" class="form-control" />
+                        <label asp-for="Input.Password" class="form-label">РџР°СЂРѕР»Р°</label>
+                        <input asp-for="Input.Password" type="password" class="form-control" />
                         <span asp-validation-for="Input.Password" class="text-danger small"></span>
                     </div>
 
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="form-check">
                             <input asp-for="Input.RememberMe" class="form-check-input" />
-                            <label asp-for="Input.RememberMe" class="form-check-label"></label>
+                            <label asp-for="Input.RememberMe" class="form-check-label">Р—Р°РїРѕРјРЅРё РјРµ</label>
                         </div>
-                        <a asp-page="/Account/ForgotPassword" class="small">Забравена парола?</a>
+                        <a asp-page="/Account/ForgotPassword" class="small">Р—Р°Р±СЂР°РІРµРЅР° РїР°СЂРѕР»Р°?</a>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> Вход
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Р’Р»РµР·
                     </button>
 
                     <div class="text-center mt-3 small text-muted">
-                        Нямаш акаунт? <a asp-page="/Account/Register" class="text-decoration-none">Регистрирай се</a>
+                        РћС‰Рµ РЅСЏРјР°С‚Рµ Р°РєР°СѓРЅС‚? <a asp-page="/Account/Register" class="text-decoration-none">Р РµРіРёСЃС‚СЂРёСЂР°Р№С‚Рµ СЃРµ</a>
                     </div>
                 </form>
             </div>
