@@ -177,6 +177,23 @@ main.container {
     }
 }
 
+/* Lamp toggle styles */
+#lampToggle {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    padding: 0;
+}
+
+/* Example reaction to lamp state; consumers can refine */
+body[data-on="true"] {
+    background: #0b1220; /* darker background when lamp is on */
+    color: #e6eef8;
+}
+
 /* Compact item row */
 .ss-line {
     padding-top: .5rem !important;
