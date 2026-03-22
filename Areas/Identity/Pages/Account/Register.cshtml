@@ -1,68 +1,120 @@
 @page
 @model SportShop.Areas.Identity.Pages.Account.RegisterModel
 @inject Microsoft.AspNetCore.Identity.UserManager<SportShop.Models.ApplicationUser> UserManager
+
 @{
     ViewData["Title"] = "Регистрация";
     var returnUrl = Model.ReturnUrl ?? Url.Content("~/");
 }
 
-<div class="ss-hero-mini mb-4">
-    <div class="ss-hero-inner d-flex flex-wrap gap-3 align-items-end justify-content-between">
-        <div>
-            <h1 class="mb-1"><i class="bi bi-person-plus-fill"></i> Регистрация</h1>
-            <div class="opacity-75">Създайте акаунт за пазаруване.</div>
+<section class="ss-auth-shell">
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-6 order-lg-2">
+            <div class="ss-auth-showcase h-100 ss-auth-showcase-register">
+                <div class="ss-auth-showcase-content">
+                    <span class="ss-auth-pill">
+                        <i class="bi bi-person-plus-fill me-2"></i>Нов профил
+                    </span>
+
+                    <h1 class="ss-auth-title mt-3">Създайте акаунт за секунди</h1>
+                    <p class="ss-auth-subtitle">
+                        Регистрирайте се и получете по-удобно пазаруване, бърз достъп до
+                        количката и по-добро изживяване в магазина.
+                    </p>
+
+                    <div class="ss-auth-stats">
+                        <div class="ss-auth-stat">
+                            <strong>Бързо</strong>
+                            <span>Регистрация за минута</span>
+                        </div>
+                        <div class="ss-auth-stat">
+                            <strong>Удобно</strong>
+                            <span>По-лесно проследяване</span>
+                        </div>
+                        <div class="ss-auth-stat">
+                            <strong>Лично</strong>
+                            <span>Любими и персонални избори</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6 col-xl-5">
-        <div class="card ss-card">
-            <div class="card-body">
-                <form method="post" asp-route-returnUrl="@returnUrl" class="needs-validation" novalidate>
-                    <h5 class="mb-3 fw-semibold">Създаване на потребителски акаунт</h5>
+        <div class="col-lg-6 order-lg-1">
+            <div class="card ss-card ss-auth-card h-100">
+                <div class="card-body p-4 p-md-5">
+                    <div class="ss-auth-form-head mb-4">
+                        <div class="ss-auth-icon">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+                        <div>
+                            <h2 class="mb-1">Създаване на акаунт</h2>
+                            <p class="text-muted mb-0">Попълнете данните и започнете да пазарувате.</p>
+                        </div>
+                    </div>
 
-                    @* Show warning if the email is already registered after a POST *@
-                    @if (ViewContext.HttpContext.Request.Method == "POST")
-                    {
-                        var _exists = await UserManager.FindByEmailAsync(Model.Input?.Email ?? string.Empty);
-                        if (_exists != null)
+                    <form method="post" asp-route-returnUrl="@returnUrl">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
+
+                        @if (ViewContext.HttpContext.Request.Method == "POST")
                         {
-                            <div class="alert alert-danger">Акаунт с този имейл вече съществува.</div>
+                            var exists = await UserManager.FindByEmailAsync(Model.Input?.Email ?? string.Empty);
+                            if (exists != null)
+                            {
+                                <div class="alert alert-danger border-0 ss-auth-alert mb-3">
+                                    Акаунт с този имейл вече съществува.
+                                </div>
+                            }
                         }
-                    }
 
-                    <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">Електронна поща</label>
-                        <input asp-for="Input.Email" type="email" class="form-control" />
-                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
-                    </div>
-
-                    <div class="row g-2">
-                        <div class="col-6 mb-3">
-                            <label asp-for="Input.Password" class="form-label">Парола</label>
-                            <input asp-for="Input.Password" type="password" class="form-control" />
-                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label fw-semibold">Електронна поща</label>
+                            <div class="input-group ss-auth-input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Input.Email" type="email" class="form-control" placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
                         </div>
-                        <div class="col-6 mb-3">
-                            <label asp-for="Input.ConfirmPassword" class="form-label">Потвърдете паролата</label>
-                            <input asp-for="Input.ConfirmPassword" type="password" class="form-control" />
-                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.Password" class="form-label fw-semibold">Парола</label>
+                                <div class="input-group ss-auth-input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input asp-for="Input.Password" type="password" class="form-control" placeholder="Парола" />
+                                </div>
+                                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Input.ConfirmPassword" class="form-label fw-semibold">Потвърдете паролата</label>
+                                <div class="input-group ss-auth-input-group">
+                                    <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                                    <input asp-for="Input.ConfirmPassword" type="password" class="form-control" placeholder="Повторете паролата" />
+                                </div>
+                                <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-person-plus me-1"></i> Регистрирай се
-                    </button>
+                        <div class="ss-auth-note mt-3 mb-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Използвайте силна парола с букви, цифри и специални символи.
+                        </div>
 
-                    <div class="text-center mt-3 small text-muted">
-                        Вече имате акаунт? <a asp-page="/Account/Login" class="text-decoration-none">Влезте</a>
-                    </div>
-                </form>
+                        <button type="submit" class="btn btn-primary w-100 ss-auth-btn">
+                            <i class="bi bi-person-check me-2"></i>Регистрирай се
+                        </button>
+
+                        <div class="text-center mt-4 small text-muted">
+                            Вече имате акаунт?
+                            <a asp-page="/Account/Login" class="ss-auth-link fw-semibold">Влезте</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

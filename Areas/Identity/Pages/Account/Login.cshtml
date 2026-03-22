@@ -1,69 +1,126 @@
 @page
 @model SportShop.Areas.Identity.Pages.Account.LoginModel
 @inject Microsoft.AspNetCore.Identity.UserManager<SportShop.Models.ApplicationUser> UserManager
+
 @{
     ViewData["Title"] = "Вход";
     var returnUrl = Model.ReturnUrl ?? Url.Content("~/");
 }
 
-<div class="ss-hero-mini mb-4">
-    <div class="ss-hero-inner d-flex flex-wrap gap-3 align-items-end justify-content-between">
-        <div>
-            <h1 class="mb-1"><i class="bi bi-box-arrow-in-right"></i> Вход</h1>
-            <div class="opacity-75">Влезте в профила си, за да продължите.</div>
-        </div>
-    </div>
-</div>
+<section class="ss-auth-shell">
+    <div class="row g-4 align-items-stretch">
+        <div class="col-lg-6">
+            <div class="ss-auth-showcase h-100">
+                <div class="ss-auth-showcase-content">
+                    <span class="ss-auth-pill">
+                        <i class="bi bi-stars me-2"></i>SportShop Demo
+                    </span>
 
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-5">
-        <div class="card ss-card">
-            <div class="card-body">
-                <form method="post" asp-route-returnUrl="@returnUrl" class="needs-validation" novalidate>
-                    <h5 class="mb-3 fw-semibold">Вход в акаунта</h5>
+                    <h1 class="ss-auth-title mt-3">Добре дошли отново</h1>
+                    <p class="ss-auth-subtitle">
+                        Влезте в профила си и продължете с любимите си спортни продукти,
+                        оферти и запазени артикули.
+                    </p>
 
-                    @* Show helpful warning when POST failed and the account does not exist *@
-                    @if (ViewContext.HttpContext.Request.Method == "POST")
-                    {
-                        var _exists = await UserManager.FindByEmailAsync(Model.Input?.Email ?? string.Empty);
-                        if (_exists == null)
-                        {
-                            <div class="alert alert-warning">Акаунт с този имейл не съществува.</div>
-                        }
-                    }
-
-                    <div class="mb-3">
-                        <label asp-for="Input.Email" class="form-label">Електронна поща</label>
-                        <input asp-for="Input.Email" type="email" class="form-control" />
-                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Input.Password" class="form-label">Парола</label>
-                        <input asp-for="Input.Password" type="password" class="form-control" />
-                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="form-check">
-                            <input asp-for="Input.RememberMe" class="form-check-input" />
-                            <label asp-for="Input.RememberMe" class="form-check-label">Запомни ме</label>
+                    <div class="ss-auth-points">
+                        <div class="ss-auth-point">
+                            <span class="ss-auth-point-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+                            <div>
+                                <div class="fw-semibold">Бърз достъп</div>
+                                <div class="small opacity-75">Вижте количката, поръчките и любимите продукти.</div>
+                            </div>
                         </div>
-                        <a asp-page="/Account/ForgotPassword" class="small">Забравена парола?</a>
+
+                        <div class="ss-auth-point">
+                            <span class="ss-auth-point-icon"><i class="bi bi-shield-check"></i></span>
+                            <div>
+                                <div class="fw-semibold">Сигурен акаунт</div>
+                                <div class="small opacity-75">Вашите данни и сесия са защитени.</div>
+                            </div>
+                        </div>
+
+                        <div class="ss-auth-point">
+                            <span class="ss-auth-point-icon"><i class="bi bi-bag-check-fill"></i></span>
+                            <div>
+                                <div class="fw-semibold">По-лесно пазаруване</div>
+                                <div class="small opacity-75">Пазарувайте по-бързо и следете активността си.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card ss-card ss-auth-card h-100">
+                <div class="card-body p-4 p-md-5">
+                    <div class="ss-auth-form-head mb-4">
+                        <div class="ss-auth-icon">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                        </div>
+                        <div>
+                            <h2 class="mb-1">Вход в акаунта</h2>
+                            <p class="text-muted mb-0">Влезте в профила си, за да продължите.</p>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> Влез
-                    </button>
+                    <form method="post" asp-route-returnUrl="@returnUrl">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3"></div>
 
-                    <div class="text-center mt-3 small text-muted">
-                        Още нямате акаунт? <a asp-page="/Account/Register" class="text-decoration-none">Регистрирайте се</a>
-                    </div>
-                </form>
+                        @if (ViewContext.HttpContext.Request.Method == "POST")
+                        {
+                            var exists = await UserManager.FindByEmailAsync(Model.Input?.Email ?? string.Empty);
+                            if (exists == null)
+                            {
+                                <div class="alert alert-warning border-0 ss-auth-alert mb-3">
+                                    Акаунт с този имейл не съществува.
+                                </div>
+                            }
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Email" class="form-label fw-semibold">Електронна поща</label>
+                            <div class="input-group ss-auth-input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Input.Email" type="email" class="form-control" placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Password" class="form-label fw-semibold">Парола</label>
+                            <div class="input-group ss-auth-input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Input.Password" type="password" class="form-control" placeholder="Въведете паролата си" />
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-4">
+                            <div class="form-check">
+                                <input asp-for="Input.RememberMe" class="form-check-input" />
+                                <label asp-for="Input.RememberMe" class="form-check-label">Запомни ме</label>
+                            </div>
+
+                            <a asp-page="/Account/ForgotPassword" class="ss-auth-link">
+                                Забравена парола?
+                            </a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 ss-auth-btn">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Влез
+                        </button>
+
+                        <div class="text-center mt-4 small text-muted">
+                            Още нямате акаунт?
+                            <a asp-page="/Account/Register" class="ss-auth-link fw-semibold">Регистрирайте се</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

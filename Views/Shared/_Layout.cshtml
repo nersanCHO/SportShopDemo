@@ -10,42 +10,53 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark ss-navbar">
+        <nav class="navbar navbar-expand-lg ss-navbar">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Products" asp-action="Index">
-                    <span class="ss-brand-icon"><i class="bi bi-lightning-charge-fill"></i></span>
-                    <span>SportShop</span>
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                    <span class="ss-brand-badge">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </span>
+                    <span class="fw-semibold">SportShop</span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="nav">
-                    <ul class="navbar-nav me-auto">
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Products" asp-action="Index"><i class="bi bi-grid"></i> Продукти</a>
+                            <a class="nav-link" asp-controller="Products" asp-action="Index">
+                                <i class="bi bi-grid me-1"></i>Продукти
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Cart" asp-action="Index"><i class="bi bi-bag"></i> Количка</a>
+                            <a class="nav-link" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-bag me-1"></i>Количка
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Favorites" asp-action="Index"><i class="bi bi-heart"></i> Любими</a>
+                            <a class="nav-link" asp-controller="Favorites" asp-action="Index">
+                                <i class="bi bi-heart me-1"></i>Любими
+                            </a>
                         </li>
-
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="AdminProducts" asp-action="Index"><i class="bi bi-gear"></i> Админ</a>
-                            </li>
-                        }
                     </ul>
 
-                    <partial name="_LoginPartial" />
+                    <div class="d-flex align-items-center gap-2">
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-light btn-sm">Регистрация</a>
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-light btn-sm">Вход</a>
+                        <a asp-area="Identity" asp-page="/Account/Manage/Index" class="ss-user-chip">
+                            <i class="bi bi-person-fill"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
+
+    <main class="container py-4">
+        @RenderBody()
+    </main>
 
     <main class="container py-4">
         @RenderBody()
