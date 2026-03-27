@@ -19,5 +19,6 @@
   <ItemGroup>
     <Folder Include="wwwroot\images\AdidasPredatorEdge\" />
     <Folder Include="wwwroot\images\NikeAirZoomPegasus40\" />
+    <Folder Include="wwwroot\orders\" />
   </ItemGroup>
 </Project>

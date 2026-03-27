@@ -1,14 +1,12 @@
 ﻿TOOOODOOOOOOOOOO
 
-admin changes window gone; add to nav bar !!!!!!
-
-make it so you can "buy" products
 
 
-when you buy to send you an email and/or txt file with the order details
+
 
 
 make correct shoe sizes
 
+when you buy to send you an email with the order details
 
 design tweaks

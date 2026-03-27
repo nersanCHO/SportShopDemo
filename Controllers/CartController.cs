@@ -147,32 +147,23 @@ public class CartController : Controller
 
         try
         {
-            // For a demo-friendly approach write an .eml file to wwwroot/orders so you can inspect it.
+            // For a demo-friendly approach write a plain .txt receipt to wwwroot/orders so you can inspect it.
             var ordersDir = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "orders");
             if (!Directory.Exists(ordersDir))
                 Directory.CreateDirectory(ordersDir);
 
-            var mail = new MailMessage();
-            mail.From = new MailAddress("no-reply@sportshop.local", "SportShop (demo)");
-            // send to the user and also to a local admin copy
-            if (!string.IsNullOrWhiteSpace(user?.Email))
-            {
-                mail.To.Add(new MailAddress(user.Email));
-            }
-            mail.To.Add(new MailAddress("orders@sportshop.local"));
-            mail.Subject = $"������� �� {input.FullName} - {DateTime.UtcNow:yyyy-MM-dd HH:mm} (demo)";
-            mail.Body = sb.ToString();
+            // Create a filename with timestamp and user name (safe fallback)
+            var safeName = string.IsNullOrWhiteSpace(user?.UserName) ? "guest" : user.UserName.Replace(" ", "_");
+            var fileName = $"order_{DateTime.UtcNow:yyyyMMdd_HHmmss}_{safeName}.txt";
+            var filePath = Path.Combine(ordersDir, fileName);
 
-            using var smtp = new SmtpClient();
-            smtp.DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory;
-            smtp.PickupDirectoryLocation = ordersDir;
-            smtp.Send(mail);
+            await System.IO.File.WriteAllTextAsync(filePath, sb.ToString(), Encoding.UTF8);
 
             // Clear cart items
             _db.CartItems.RemoveRange(items);
             await _db.SaveChangesAsync();
 
-            TempData["OrderMessage"] = "��������� � ��������. ������� ������ �� ��� ������� wwwroot/orders (����).";
+            TempData["OrderMessage"] = "Поръчката е изпратена. Файл с поръчката е записан в wwwroot/orders като .txt (демо).";
         }
         catch (Exception ex)
         {
