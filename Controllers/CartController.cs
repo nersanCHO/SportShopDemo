@@ -116,7 +116,7 @@ public class CartController : Controller
 
         if (!items.Any())
         {
-            TempData["OrderMessage"] = "Количката е празна.";
+            TempData["OrderMessage"] = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -124,26 +124,26 @@ public class CartController : Controller
 
         // Build email body
         var sb = new StringBuilder();
-        sb.AppendLine("SportShop - Ново поръчване (демо)");
+        sb.AppendLine("SportShop - пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ)");
         sb.AppendLine();
-        sb.AppendLine($"Поръчител: {input.FullName}");
-        sb.AppendLine($"Имейл: {user?.Email}");
-        sb.AppendLine($"Телефон: {input.Phone}");
-        sb.AppendLine($"Адрес: {input.Address}");
+        sb.AppendLine($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {input.FullName}");
+        sb.AppendLine($"пїЅпїЅпїЅпїЅпїЅ: {user?.Email}");
+        sb.AppendLine($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {input.Phone}");
+        sb.AppendLine($"пїЅпїЅпїЅпїЅпїЅ: {input.Address}");
         sb.AppendLine();
-        sb.AppendLine("Артикули:");
+        sb.AppendLine("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:");
 
         foreach (var it in items)
         {
             var name = it.Product?.Name ?? "N/A";
             var price = it.Product?.Price ?? 0m;
-            sb.AppendLine($"{it.Quantity} x {name} @ {price:0.00} лв. = {(price * it.Quantity):0.00} лв.");
+            sb.AppendLine($"{it.Quantity} x {name} @ {price:0.00} пїЅпїЅ. = {(price * it.Quantity):0.00} пїЅпїЅ.");
         }
 
         sb.AppendLine();
-        sb.AppendLine($"Междинна сума: {total:0.00} лв.");
+        sb.AppendLine($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: {total:0.00} пїЅпїЅ.");
         sb.AppendLine();
-        sb.AppendLine("Бележка: Това е демонстрационен checkout. Не се извършват реални плащания.");
+        sb.AppendLine("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ checkout. пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
 
         try
         {
@@ -160,7 +160,7 @@ public class CartController : Controller
                 mail.To.Add(new MailAddress(user.Email));
             }
             mail.To.Add(new MailAddress("orders@sportshop.local"));
-            mail.Subject = $"Поръчка от {input.FullName} - {DateTime.UtcNow:yyyy-MM-dd HH:mm} (demo)";
+            mail.Subject = $"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ {input.FullName} - {DateTime.UtcNow:yyyy-MM-dd HH:mm} (demo)";
             mail.Body = sb.ToString();
 
             using var smtp = new SmtpClient();
@@ -172,12 +172,12 @@ public class CartController : Controller
             _db.CartItems.RemoveRange(items);
             await _db.SaveChangesAsync();
 
-            TempData["OrderMessage"] = "Поръчката е получена. Провери имейла си или папката wwwroot/orders (демо).";
+            TempData["OrderMessage"] = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ wwwroot/orders (пїЅпїЅпїЅпїЅ).";
         }
         catch (Exception ex)
         {
             // Log if you have logger; for now return friendly message.
-            TempData["OrderMessage"] = "Грешка при изпращане на поръчката: " + ex.Message;
+            TempData["OrderMessage"] = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " + ex.Message;
         }
 
         return RedirectToAction(nameof(Index));
