@@ -14,19 +14,21 @@ public static class SeedData
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var context = services.GetRequiredService<ApplicationDbContext>();
 
-       
-
         // Roles
         string[] roles = { "Admin", "Client" };
+
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
+            {
                 await roleManager.CreateAsync(new IdentityRole(role));
+            }
         }
 
         // Admin user
         var adminEmail = "admin@sportshop.com";
         var admin = await userManager.FindByEmailAsync(adminEmail);
+
         if (admin == null)
         {
             admin = new ApplicationUser
@@ -37,29 +39,18 @@ public static class SeedData
             };
 
             var result = await userManager.CreateAsync(admin, "Admin123!");
+
             if (result.Succeeded)
+            {
                 await userManager.AddToRoleAsync(admin, "Admin");
+            }
         }
 
-        // ✅ Reseed only SeedData products (leave user-created products untouched)
-        var seededProducts = await context.Products
-            .Include(p => p.Photos)
-            .Where(p => p.Name.StartsWith(SeedPrefix))
-            .ToListAsync();
-
-        if (seededProducts.Count > 0)
+        // Seed products only if they do not already exist.
+        // IMPORTANT: do NOT delete and recreate seeded products,
+        // because that breaks existing cart/favorites relationships.
+        var productsToSeed = new List<Product>
         {
-            // Remove photos first (safe even if cascade exists)
-            var seededPhotos = seededProducts.SelectMany(p => p.Photos).ToList();
-            if (seededPhotos.Count > 0)
-                context.ProductPhotos.RemoveRange(seededPhotos);
-
-            context.Products.RemoveRange(seededProducts);
-            await context.SaveChangesAsync();
-        }
-
-        
-        context.Products.AddRange(
             new Product
             {
                 Name = SeedPrefix + "Nike Air Zoom Pegasus 40",
@@ -75,7 +66,6 @@ public static class SeedData
                     new ProductPhoto { ImagePath = "/images/NikeAirZoomPegasus40/2.jpg" },
                     new ProductPhoto { ImagePath = "/images/NikeAirZoomPegasus40/3.jpg" },
                     new ProductPhoto { ImagePath = "/images/NikeAirZoomPegasus40/4.jpg" }
-
                 }
             },
             new Product
@@ -92,8 +82,7 @@ public static class SeedData
                 {
                     new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/2.jpg" },
                     new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/3.jpg" },
-                    new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/4.jpg" },
-
+                    new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/4.jpg" }
                 }
             },
             new Product
@@ -109,12 +98,9 @@ public static class SeedData
                 Photos = new List<ProductPhoto>
                 {
                     new ProductPhoto { ImagePath = "/images/TrainingTShirtDryFit/2.jpg" },
-                    new ProductPhoto { ImagePath = "/images/TrainingTShirtDryFit/3.jpg" },
-                    
+                    new ProductPhoto { ImagePath = "/images/TrainingTShirtDryFit/3.jpg" }
                 }
             },
-            
-            
             new Product
             {
                 Name = SeedPrefix + "Sport Socks Pro",
@@ -127,8 +113,7 @@ public static class SeedData
                 ImagePath = "/images/SportSocksPro/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/SportSocksPro/2.jpg" },
-
+                    new ProductPhoto { ImagePath = "/images/SportSocksPro/2.jpg" }
                 }
             },
             new Product
@@ -143,11 +128,20 @@ public static class SeedData
                 ImagePath = "/images/OutdoorWindJacket/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/OutdoorWindJacket.jpg" },
-                   
+                    new ProductPhoto { ImagePath = "/images/OutdoorWindJacket/2.jpg" }
                 }
             }
-        );
+        };
+
+        foreach (var product in productsToSeed)
+        {
+            var exists = await context.Products.AnyAsync(p => p.Name == product.Name);
+
+            if (!exists)
+            {
+                context.Products.Add(product);
+            }
+        }
 
         await context.SaveChangesAsync();
     }
