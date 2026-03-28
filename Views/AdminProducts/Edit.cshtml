@@ -1,97 +1,256 @@
 @model SportShop.Models.Product
 @using SportShop.Models
+
 @{
     ViewData["Title"] = "Редактирай продукт";
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
+
+    var sportMap = new Dictionary<string, string[]>
+    {
+        ["Running"] = new[] { "Shoes", "Apparel", "Accessories" },
+        ["Football"] = new[] { "Cleats", "Shin Guards", "Balls", "Apparel" },
+        ["Fitness"] = new[] { "Equipment", "Apparel", "Supplements" },
+        ["Tennis"] = new[] { "Rackets", "Balls", "Shoes", "Apparel" },
+        ["Cycling"] = new[] { "Bikes", "Helmets", "Apparel", "Accessories" }
+    };
+
+    var sportMapJson = System.Text.Json.JsonSerializer.Serialize(sportMap);
+    var selectedSizes = Model.GetAvailableSizes().ToHashSet(StringComparer.OrdinalIgnoreCase);
 }
 
-<h1 class="mb-3">Редактирай продукт</h1>
+<h1>Редактирай продукт</h1>
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data" class="card card-body">
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label class="form-label">Име</label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Спорт</label>
-            <input asp-for="Sport" class="form-control" placeholder="Напр. Тенис" />
-            <span asp-validation-for="Sport" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Подкатегория</label>
-            <input asp-for="SubCategory" class="form-control" placeholder="Напр. Ракети" />
-            <span asp-validation-for="SubCategory" class="text-danger"></span>
-        </div>
 
-        <div class="col-md-3">
-            <label class="form-label">Цена (лв.)</label>
-            <input asp-for="Price" class="form-control" />
-            <span asp-validation-for="Price" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Мъже/Жени</label>
-            <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<GenderTarget>()"></select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Размер</label>
-            <select asp-for="Size" class="form-select" asp-items="Html.GetEnumSelectList<ProductSize>()"></select>
-        </div>
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="ImagePath" type="hidden" />
 
-        <div class="col-12">
-            <label class="form-label">Текуща заглавна снимка</label>
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <img src="@Model.ImagePath" alt="" class="img-thumbnail" style="width:160px; height:160px; object-fit:cover;" />
-                <div class="form-text">Това е заглавната снимка, показвана като миниатюра и първа в карусела.</div>
-            </div>
-        </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-        <div class="col-md-6">
-            <label class="form-label">Смяна на заглавната снимка</label>
-            <input type="file" name="titleImage" class="form-control" accept="image/*" />
-            <div class="form-text">Качи нова заглавна снимка, за да замениш текущата.</div>
-        </div>
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Име</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
 
-        <div class="col-12">
-            <label class="form-label">Текущи допълнителни снимки</label>
-            <div class="d-flex gap-2 flex-wrap mb-2">
+    <div class="mb-3">
+        <label asp-for="Sport" class="form-label">Спорт</label>
+        <select asp-for="Sport" class="form-select" id="Sport">
+            <option value="">Избери спорт...</option>
+            @foreach (var s in sportMap.Keys)
+            {
+                <option value="@s">@s</option>
+            }
+        </select>
+        <span asp-validation-for="Sport" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SubCategory" class="form-label">Подкатегория</label>
+        <select asp-for="SubCategory" class="form-select" id="SubCategory">
+            <option value="">Избери подкатегория...</option>
+        </select>
+        <span asp-validation-for="SubCategory" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label">Цена (лв.)</label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Gender" class="form-label">Мъже/Жени</label>
+        <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<GenderTarget>()"></select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SizeType" class="form-label">Тип размер</label>
+        <select asp-for="SizeType" class="form-select" id="sizeTypeSelect">
+            <option value="@ProductSizeType.Universal">Universal</option>
+            <option value="@ProductSizeType.Clothing">Clothing</option>
+            <option value="@ProductSizeType.Shoes">Shoes</option>
+        </select>
+        <span asp-validation-for="SizeType" class="text-danger"></span>
+    </div>
+
+    <input asp-for="AvailableSizes" type="hidden" id="availableSizesInput" />
+    <span asp-validation-for="AvailableSizes" class="text-danger d-block mb-3"></span>
+
+    <div id="universalSizesPanel" class="mb-3">
+        <label class="form-label">Размер</label>
+        <div class="form-control bg-light">Universal</div>
+        <div class="form-text">Клиентът ще може да добавя само размер Universal.</div>
+    </div>
+
+    <div id="clothingSizesPanel" class="mb-3">
+        <label class="form-label">Размери за дрехи</label>
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var size in Product.ClothingSizeOptions)
+            {
+                <div class="form-check">
+                    <input class="form-check-input size-option size-option-clothing"
+                           type="checkbox"
+                           id="clothing_@size"
+                           value="@size"
+                           @(selectedSizes.Contains(size) ? "checked" : null) />
+                    <label class="form-check-label" for="clothing_@size">@size</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div id="shoeSizesPanel" class="mb-3">
+        <label class="form-label">Размери за обувки</label>
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var size in Product.ShoeSizeOptions)
+            {
+                <div class="form-check">
+                    <input class="form-check-input size-option size-option-shoes"
+                           type="checkbox"
+                           id="shoe_@size"
+                           value="@size"
+                           @(selectedSizes.Contains(size) ? "checked" : null) />
+                    <label class="form-check-label" for="shoe_@size">@size</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Текуща заглавна снимка</label>
+        <div class="mb-2">
+            <img src="@Model.ImagePath" alt="Текуща заглавна снимка" class="img-thumbnail" style="max-width: 240px;" />
+        </div>
+        <div class="form-text">
+            Това е заглавната снимка, показвана като миниатюра и първа в карусела.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Смяна на заглавната снимка</label>
+        <input type="file" name="titleImage" class="form-control" accept="image/*" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Текущи допълнителни снимки</label>
+
+        @if (Model.Photos != null && Model.Photos.Any())
+        {
+            <div class="d-flex flex-wrap gap-3">
                 @foreach (var ph in Model.Photos)
                 {
-                    <div class="position-relative" style="width:120px;">
-                        <img src="@ph.ImagePath" alt="" class="img-thumbnail" style="width:120px; height:120px; object-fit:cover;" />
-                        <form asp-action="DeletePhoto" method="post" class="position-absolute" style="right:0; top:0;">
+                    <div class="border rounded p-2 text-center">
+                        <img src="@ph.ImagePath" alt="Снимка" class="img-thumbnail mb-2" style="width: 140px; height: 140px; object-fit: cover;" />
+
+                        <form asp-action="DeletePhoto" method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="photoId" value="@ph.Id" />
                             <input type="hidden" name="productId" value="@Model.Id" />
                             <input type="hidden" name="returnUrl" value="@returnUrl" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit" title="Изтрий">×</button>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">×</button>
                         </form>
                     </div>
                 }
             </div>
-        </div>
-
-        <div class="col-md-6">
-            <label class="form-label">Качи допълнителни снимки</label>
-            <input type="file" name="images" class="form-control" accept="image/*" multiple />
-            <div class="form-text">Може да качиш няколко допълнителни снимки.</div>
-        </div>
-
-        <div class="col-12">
-            <label class="form-label">Описание</label>
-            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-        </div>
+        }
+        else
+        {
+            <div class="text-muted">Няма качени допълнителни снимки.</div>
+        }
     </div>
 
-    <div class="d-flex gap-2 mt-3">
-        <a class="btn btn-outline-secondary" asp-action="Index">Назад</a>
-        <button class="btn btn-primary" type="submit">Запази</button>
+    <div class="mb-3">
+        <label class="form-label">Качи допълнителни снимки</label>
+        <input type="file" name="images" class="form-control" accept="image/*" multiple />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Описание</label>
+        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">Назад</a>
+        <button type="submit" class="btn btn-primary">Запази</button>
     </div>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const sportMap = @Html.Raw(sportMapJson);
+        const sportSelect = document.getElementById('Sport');
+        const subCategorySelect = document.getElementById('SubCategory');
+        const sizeTypeSelect = document.getElementById('sizeTypeSelect');
+        const availableSizesInput = document.getElementById('availableSizesInput');
+
+        const universalSizesPanel = document.getElementById('universalSizesPanel');
+        const clothingSizesPanel = document.getElementById('clothingSizesPanel');
+        const shoeSizesPanel = document.getElementById('shoeSizesPanel');
+
+        const selectedSubCategory = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SubCategory));
+
+        function populateSubCategories() {
+            const selectedSport = sportSelect.value;
+            const values = sportMap[selectedSport] || [];
+
+            subCategorySelect.innerHTML = '<option value="">Избери подкатегория...</option>';
+
+            values.forEach(function (value) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+
+                if (value === selectedSubCategory) {
+                    option.selected = true;
+                }
+
+                subCategorySelect.appendChild(option);
+            });
+        }
+
+        function syncAvailableSizes() {
+            const sizeType = sizeTypeSelect.value;
+
+            if (sizeType === 'Universal') {
+                availableSizesInput.value = 'Universal';
+                return;
+            }
+
+            let selector = '.size-option-clothing';
+            if (sizeType === 'Shoes') {
+                selector = '.size-option-shoes';
+            }
+
+            const selected = Array.from(document.querySelectorAll(selector + ':checked'))
+                .map(x => x.value);
+
+            availableSizesInput.value = selected.join(',');
+        }
+
+        function toggleSizePanels() {
+            const sizeType = sizeTypeSelect.value;
+
+            universalSizesPanel.style.display = sizeType === 'Universal' ? 'block' : 'none';
+            clothingSizesPanel.style.display = sizeType === 'Clothing' ? 'block' : 'none';
+            shoeSizesPanel.style.display = sizeType === 'Shoes' ? 'block' : 'none';
+
+            syncAvailableSizes();
+        }
+
+        sportSelect.addEventListener('change', populateSubCategories);
+        sizeTypeSelect.addEventListener('change', toggleSizePanels);
+
+        document.querySelectorAll('.size-option').forEach(function (checkbox) {
+            checkbox.addEventListener('change', syncAvailableSizes);
+        });
+
+        populateSubCategories();
+        toggleSizePanels();
+    </script>
 }

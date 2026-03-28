@@ -1,197 +1,167 @@
 @model List<SportShop.Models.CartItem>
+
 @{
     ViewData["Title"] = "Количка";
+
     decimal total = ViewBag.Total ?? 0m;
     var favIds = ViewBag.FavoriteIds as List<int> ?? new List<int>();
     var cartIndexUrl = Url.Action("Index", "Cart");
 }
 
-<div class="ss-hero-mini mb-4">
-    <div class="ss-hero-inner d-flex flex-wrap gap-3 align-items-end justify-content-between">
-        <div>
-            <h1 class="mb-1"><i class="bi bi-bag-fill"></i> Количка</h1>
-            <div class="opacity-75">Провери количествата и финализирай (демо) поръчката.</div>
-        </div>
-        <div class="d-flex gap-2">
-            <a class="btn btn-light btn-sm" asp-controller="Products" asp-action="Index"><i class="bi bi-grid"></i> Продукти</a>
-            <a class="btn btn-outline-light btn-sm" asp-controller="Favorites" asp-action="Index"><i class="bi bi-heart"></i> Любими</a>
-        </div>
-    </div>
+<h1>Количка</h1>
+
+<p>Провери количествата и финализирай поръчката.</p>
+
+<div class="d-flex gap-2 mb-4">
+    <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">Продукти</a>
+    <a asp-controller="Favorites" asp-action="Index" class="btn btn-outline-secondary">Любими</a>
 </div>
+
+@if (TempData["CartMessage"] != null)
+{
+    <div class="alert alert-warning">@TempData["CartMessage"]</div>
+}
 
 @if (TempData["OrderMessage"] != null)
 {
-    <div class="alert alert-success">@TempData["OrderMessage"]</div>
+    <div class="alert alert-info">@TempData["OrderMessage"]</div>
 }
 
 @if (!Model.Any())
 {
     <div class="alert alert-info">
-        Количката е празна.
-        <a asp-controller="Products" asp-action="Index" class="alert-link ms-1">Добави продукти</a>.
+        Количката е празна. Добави продукти.
     </div>
 }
 else
 {
-    <div class="row g-3">
-        <!-- LEFT: items -->
+    <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card ss-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="fw-semibold">Твоите артикули</div>
-                        <div class="text-muted small">@Model.Count бр.</div>
-                    </div>
+            <h3>Твоите артикули</h3>
+            <p class="text-muted">@Model.Count бр.</p>
 
-                    <div class="d-flex flex-column gap-3">
-                        @foreach (var i in Model)
-                        {
-                            var isFav = favIds.Contains(i.ProductId);
-                            var p = i.Product;
-                            var thumb = p?.ImagePath ?? p?.Photos?.FirstOrDefault()?.ImagePath ?? "/images/products/default.png";
-                            var price = p?.Price ?? 0m;
-                            var lineTotal = price * i.Quantity;
+            @foreach (var i in Model)
+            {
+                var isFav = favIds.Contains(i.ProductId);
+                var p = i.Product;
+                var thumb = p?.ImagePath ?? p?.Photos?.FirstOrDefault()?.ImagePath ?? "/images/products/default.png";
+                var price = p?.Price ?? 0m;
+                var lineTotal = price * i.Quantity;
 
-                            <div class="p-2 rounded-3 border ss-line" style="border-color: rgba(15,23,42,.12) !important;">
-                                <div class="d-flex gap-3 align-items-start">
-                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" aria-label="Виж детайли" class="d-block">
-                                        <img src="@thumb" alt="@(p?.Name)" class="ss-thumb" />
-                                    </a>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-3">
+                                <img src="@thumb" alt="@(p?.Name)" class="img-fluid rounded" />
+                            </div>
 
-                                    <div class="flex-grow-1 min-w-0">
-                                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start">
-                                            <div class="min-w-0">
-                                                <div class="fw-semibold">
-                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@i.ProductId" class="text-decoration-none text-dark ss-product-name">
-                                                        @(p?.Name)
-                                                    </a>
-                                                </div>
-                                                <div class="text-muted small text-truncate ss-product-meta">
-                                                    @(p?.Sport) · @(p?.SubCategory) · @(p?.Gender) · Размер: @(p != null ? p.Size.ToString() : "")
-                                                </div>
-                                            </div>
+                            <div class="col-md-5">
+                                <h5 class="mb-1">@(p?.Name)</h5>
+                                <div class="text-muted small">
+                                    @(p?.Sport) · @(p?.SubCategory) · @(p?.Gender) · Размер: @i.SelectedSize
+                                </div>
+                                <div class="mt-2 fw-bold">@price.ToString("0.00") лв.</div>
+                                <div class="text-muted">Сума: @lineTotal.ToString("0.00") лв.</div>
+                            </div>
 
-                                            <div class="text-end ms-2">
-                                                <div class="ss-price fw-semibold small">
-                                                    <i class="bi bi-cash-coin"></i> @price.ToString("0.00") лв.
-                                                </div>
-                                                <div class="text-muted small mt-1">Сума: <span class="fw-semibold">@lineTotal.ToString("0.00")</span> лв.</div>
-                                            </div>
-                                        </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <form asp-action="Decrease" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="cartItemId" value="@i.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary">-</button>
+                                    </form>
 
-                                        <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
-                                            <!-- Qty control -->
-                                            <div class="d-inline-flex align-items-center gap-2">
-                                                <form asp-action="Decrease" method="post" class="m-0 p-0">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="cartItemId" value="@i.Id" />
-                                                    <button class="btn btn-sm btn-outline-secondary" type="submit" aria-label="Намали"><i class="bi bi-dash"></i></button>
-                                                </form>
+                                    <span class="fw-bold">@i.Quantity</span>
 
-                                                <span class="fw-semibold">@i.Quantity</span>
+                                    <form asp-action="Add" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@i.ProductId" />
+                                        <input type="hidden" name="selectedSize" value="@i.SelectedSize" />
+                                        <button type="submit" class="btn btn-outline-secondary">+</button>
+                                    </form>
+                                </div>
 
-                                                <form asp-action="Add" method="post" class="m-0 p-0">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="productId" value="@i.ProductId" />
-                                                    <button class="btn btn-sm btn-outline-secondary" type="submit" aria-label="Увеличи"><i class="bi bi-plus"></i></button>
-                                                </form>
-                                            </div>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <form asp-controller="Favorites" asp-action="Toggle" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@i.ProductId" />
+                                        <input type="hidden" name="returnUrl" value="@cartIndexUrl" />
+                                        <button type="submit" class="btn btn-outline-dark">
+                                            @(isFav ? "В любими" : "Любими")
+                                        </button>
+                                    </form>
 
-                                            <!-- Fav toggle -->
-                                            <form asp-controller="Favorites" asp-action="Toggle" method="post" class="m-0 p-0">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="productId" value="@i.ProductId" />
-                                                <input type="hidden" name="returnUrl" value="@cartIndexUrl" />
-                                                <button class="btn btn-sm btn-outline-danger" type="submit" title="Любими">
-                                                    <i class="bi @(isFav ? "bi-heart-fill" : "bi-heart")"></i>
-                                                    @(isFav ? "В любими" : "Любими")
-                                                </button>
-                                            </form>
-
-                                            <!-- Remove -->
-                                            <form asp-action="Remove" method="post" class="ms-auto m-0 p-0">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="cartItemId" value="@i.Id" />
-                                                <button class="btn btn-sm btn-outline-danger" type="submit">
-                                                    <i class="bi bi-trash"></i> Премахни
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                    <form asp-action="Remove" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="cartItemId" value="@i.Id" />
+                                        <button type="submit" class="btn btn-outline-danger">Премахни</button>
+                                    </form>
                                 </div>
                             </div>
-                        }
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT: summary -->
-        <div class="col-lg-4">
-            <div class="card ss-card position-sticky" style="top: 92px;">
-                <div class="card-body">
-                    <div class="fw-semibold mb-2">Обобщение</div>
-
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">Междинна сума</span>
-                        <span class="fw-semibold">@total.ToString("0.00") лв.</span>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Доставка</span>
-                        <span class="fw-semibold">0.00 лв. <span class="text-muted small">(демо)</span></span>
-                    </div>
-
-                    <div class="p-2 rounded-3" style="background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.16);">
-                        <div class="d-flex justify-content-between">
-                            <span class="fw-semibold">Общо</span>
-                            <span class="fw-bold">@total.ToString("0.00") лв.</span>
                         </div>
                     </div>
+                </div>
+            }
+        </div>
 
-                    <button class="btn btn-primary w-100 mt-3" type="button" data-bs-toggle="modal" data-bs-target="#checkoutModal">
-                        <i class="bi bi-credit-card"></i> Checkout
-                    </button>
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4>Обобщение</h4>
 
-                    <div class="text-muted small mt-2">
-                        Това е демонстрация. След потвърждение, поръчката ще бъде записана като имейл (.eml) в папката <code>wwwroot/orders</code>.
+                    <div class="d-flex justify-content-between">
+                        <span>Междинна сума</span>
+                        <strong>@total.ToString("0.00") лв.</strong>
                     </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Доставка</span>
+                        <strong>0.00 лв. (демо)</strong>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between fs-5">
+                        <span>Общо</span>
+                        <strong>@total.ToString("0.00") лв.</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Финализирай поръчката</h4>
+                    <p class="text-muted">
+                        Това е демонстрация. След потвърждение поръчката ще бъде записана като .txt файл в папката
+                        <code>wwwroot/orders</code>.
+                    </p>
+
+                    <form asp-action="Checkout" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label" for="FullName">Име и фамилия</label>
+                            <input class="form-control" id="FullName" name="FullName" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="Address">Адрес</label>
+                            <input class="form-control" id="Address" name="Address" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="Phone">Телефон</label>
+                            <input class="form-control" id="Phone" name="Phone" required />
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">Отказ</a>
+                            <button type="submit" class="btn btn-success">Изпрати поръчката</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 }
-
-<!-- Checkout Modal -->
-<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content ss-card">
-            <div class="modal-header">
-                <h5 class="modal-title" id="checkoutModalLabel"><i class="bi bi-credit-card"></i> Финализирай поръчката</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form asp-action="Checkout" method="post">
-                @Html.AntiForgeryToken()
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Име и фамилия</label>
-                        <input name="FullName" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Адрес</label>
-                        <textarea name="Address" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Телефон</label>
-                        <input name="Phone" class="form-control" required />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отказ</button>
-                    <button type="submit" class="btn btn-primary">Изпрати поръчката</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>

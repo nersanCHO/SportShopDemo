@@ -7,12 +7,13 @@ namespace SportShop.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options) { }
+        : base(options)
+    {
+    }
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
     public DbSet<Favorite> Favorites => Set<Favorite>();
-    // New DbSet for product photos
     public DbSet<ProductPhoto> ProductPhotos => Set<ProductPhoto>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -24,10 +25,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .IsUnique();
 
         builder.Entity<CartItem>()
-            .HasIndex(c => new { c.UserId, c.ProductId })
+            .HasIndex(c => new { c.UserId, c.ProductId, c.SelectedSize })
             .IsUnique();
 
-        // relationship: Product -> ProductPhoto (many)
+        builder.Entity<CartItem>()
+            .Property(c => c.SelectedSize)
+            .HasMaxLength(20);
+
+        builder.Entity<Product>()
+            .Property(p => p.AvailableSizes)
+            .HasMaxLength(200);
+
         builder.Entity<ProductPhoto>()
             .HasOne(pp => pp.Product)
             .WithMany(p => p.Photos)

@@ -12,7 +12,11 @@ public class CartItem
     public ApplicationUser? User { get; set; }
 
     public int ProductId { get; set; }
+
     public Product? Product { get; set; }
+
+    [Required, StringLength(20)]
+    public string SelectedSize { get; set; } = "Universal";
 
     [Range(1, 999)]
     public int Quantity { get; set; } = 1;

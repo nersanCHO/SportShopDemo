@@ -19,26 +19,37 @@ public class AdminProductsController : Controller
     }
 
     public async Task<IActionResult> Index()
-        => View(await _db.Products.OrderBy(p => p.Name).ToListAsync());
+    {
+        var products = await _db.Products
+            .OrderBy(p => p.Name)
+            .ToListAsync();
 
-    public IActionResult Create() => View(new Product());
+        return View(products);
+    }
+
+    public IActionResult Create()
+    {
+        return View(new Product());
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Product model, IFormFile? titleImage, IFormFileCollection? images)
     {
-        if (!ModelState.IsValid) return View(model);
+        NormalizeAndValidateSizes(model);
 
-        // If admin provided a separate title image, save it and set legacy ImagePath.
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
         if (titleImage is { Length: > 0 })
         {
             var saved = await SaveImageAsync(titleImage);
             model.ImagePath = saved;
-            // also add it to Photos so it appears in carousel
             model.Photos.Add(new ProductPhoto { ImagePath = saved });
         }
 
-        // Save uploaded additional images
         if (images != null && images.Any(i => i.Length > 0))
         {
             foreach (var img in images.Where(i => i.Length > 0))
@@ -47,60 +58,87 @@ public class AdminProductsController : Controller
                 model.Photos.Add(new ProductPhoto { ImagePath = saved });
             }
 
-            // if no separate titleImage uploaded, use first uploaded additional image as legacy ImagePath
-            if (string.IsNullOrEmpty(model.ImagePath))
+            if (string.IsNullOrWhiteSpace(model.ImagePath))
             {
                 var first = model.Photos.FirstOrDefault();
                 if (first != null)
+                {
                     model.ImagePath = first.ImagePath;
+                }
             }
         }
 
         _db.Products.Add(model);
         await _db.SaveChangesAsync();
+
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Edit(int id)
     {
+        var product = await _db.Products
+            .Include(p => p.Photos)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
-        var p = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
-        if (p == null) return NotFound();
-        return View(p);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Product model, IFormFile? titleImage, IFormFileCollection? images)
     {
-        if (id != model.Id) return BadRequest();
-        if (!ModelState.IsValid) return View(model);
+        if (id != model.Id)
+        {
+            return BadRequest();
+        }
 
-        var existing = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
-        if (existing == null) return NotFound();
-        existing.Size = model.Size;
+        NormalizeAndValidateSizes(model);
+
+        if (!ModelState.IsValid)
+        {
+            model.Photos = await _db.ProductPhotos
+                .Where(pp => pp.ProductId == model.Id)
+                .ToListAsync();
+
+            return View(model);
+        }
+
+        var existing = await _db.Products
+            .Include(p => p.Photos)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (existing == null)
+        {
+            return NotFound();
+        }
+
         existing.Name = model.Name;
         existing.Sport = model.Sport;
         existing.SubCategory = model.SubCategory;
         existing.Price = model.Price;
         existing.Gender = model.Gender;
+        existing.SizeType = model.SizeType;
+        existing.AvailableSizes = model.AvailableSizes;
         existing.Description = model.Description;
 
-        // Replace title image if provided
         if (titleImage is { Length: > 0 })
         {
-            // delete previous title image file if stored in images/products
             TryDeleteFile(existing.ImagePath);
 
             var saved = await SaveImageAsync(titleImage);
             existing.ImagePath = saved;
 
-            // add the new title image to photos as well (avoid duplicates if same image uploaded twice)
             if (!existing.Photos.Any(pp => pp.ImagePath == saved))
+            {
                 existing.Photos.Add(new ProductPhoto { ImagePath = saved });
+            }
         }
 
-        // Add additional uploaded images
         if (images != null && images.Any(i => i.Length > 0))
         {
             foreach (var img in images.Where(i => i.Length > 0))
@@ -109,48 +147,66 @@ public class AdminProductsController : Controller
                 existing.Photos.Add(new ProductPhoto { ImagePath = saved });
             }
 
-            // ensure legacy ImagePath points to first photo if not set
-            var first = existing.Photos.FirstOrDefault();
-            if (first != null && string.IsNullOrEmpty(existing.ImagePath))
-                existing.ImagePath = first.ImagePath;
+            if (string.IsNullOrWhiteSpace(existing.ImagePath))
+            {
+                var first = existing.Photos.FirstOrDefault();
+                if (first != null)
+                {
+                    existing.ImagePath = first.ImagePath;
+                }
+            }
         }
 
         await _db.SaveChangesAsync();
+
         return RedirectToAction(nameof(Index));
     }
 
     public async Task<IActionResult> Delete(int id)
     {
-        var p = await _db.Products.FindAsync(id);
-        if (p == null) return NotFound();
-        return View(p);
+        var product = await _db.Products.FindAsync(id);
+
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var p = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
-        if (p == null) return NotFound();
+        var product = await _db.Products
+            .Include(p => p.Photos)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
-        // delete files from disk for associated photos and main image
-        foreach (var ph in p.Photos)
+        if (product == null)
         {
-            TryDeleteFile(ph.ImagePath);
+            return NotFound();
         }
-        TryDeleteFile(p.ImagePath);
 
-        _db.Products.Remove(p);
+        foreach (var photo in product.Photos)
+        {
+            TryDeleteFile(photo.ImagePath);
+        }
+
+        TryDeleteFile(product.ImagePath);
+
+        _db.Products.Remove(product);
         await _db.SaveChangesAsync();
+
         return RedirectToAction(nameof(Index));
     }
 
-    // delete a product photo
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeletePhoto(int photoId, int productId, string? returnUrl = null)
     {
-        var photo = await _db.ProductPhotos.FirstOrDefaultAsync(pp => pp.Id == photoId && pp.ProductId == productId);
+        var photo = await _db.ProductPhotos
+            .FirstOrDefaultAsync(pp => pp.Id == photoId && pp.ProductId == productId);
+
         if (photo != null)
         {
             TryDeleteFile(photo.ImagePath);
@@ -159,9 +215,27 @@ public class AdminProductsController : Controller
         }
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
             return Redirect(returnUrl);
+        }
 
         return RedirectToAction(nameof(Edit), new { id = productId });
+    }
+
+    private void NormalizeAndValidateSizes(Product model)
+    {
+        model.AvailableSizes = Product.NormalizeSizeList(model.SizeType, model.AvailableSizes);
+
+        if (model.SizeType == ProductSizeType.Universal)
+        {
+            model.AvailableSizes = "Universal";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(model.AvailableSizes))
+        {
+            ModelState.AddModelError(nameof(Product.AvailableSizes), "Избери поне един размер.");
+        }
     }
 
     private async Task<string> SaveImageAsync(IFormFile image)
@@ -180,15 +254,25 @@ public class AdminProductsController : Controller
 
     private void TryDeleteFile(string? imagePath)
     {
-        if (string.IsNullOrEmpty(imagePath)) return;
-        if (!imagePath.StartsWith("/images/products/")) return;
+        if (string.IsNullOrWhiteSpace(imagePath))
+        {
+            return;
+        }
 
-        var fileName = imagePath.Replace("/images/products/", "");
+        if (!imagePath.StartsWith("/images/products/", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var fileName = imagePath.Replace("/images/products/", string.Empty, StringComparison.OrdinalIgnoreCase);
         var filePath = Path.Combine(_env.WebRootPath, "images", "products", fileName);
+
         try
         {
             if (System.IO.File.Exists(filePath))
+            {
                 System.IO.File.Delete(filePath);
+            }
         }
         catch
         {

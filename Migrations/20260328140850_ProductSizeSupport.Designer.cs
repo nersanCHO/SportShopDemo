@@ -12,8 +12,8 @@ using SportShop.Data;
 namespace SportShop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260317063233_Size")]
-    partial class Size
+    [Migration("20260328140850_ProductSizeSupport")]
+    partial class ProductSizeSupport
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

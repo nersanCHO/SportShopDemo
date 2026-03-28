@@ -14,6 +14,8 @@ public static class SeedData
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var context = services.GetRequiredService<ApplicationDbContext>();
 
+        await context.Database.MigrateAsync();
+
         // Roles
         string[] roles = { "Admin", "Client" };
 
@@ -45,12 +47,56 @@ public static class SeedData
                 await userManager.AddToRoleAsync(admin, "Admin");
             }
         }
-
-        // Seed products only if they do not already exist.
-        // IMPORTANT: do NOT delete and recreate seeded products,
-        // because that breaks existing cart/favorites relationships.
-        var productsToSeed = new List<Product>
+        else
         {
+            if (!await userManager.IsInRoleAsync(admin, "Admin"))
+            {
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+        }
+
+        // Remove old seeded products only
+        var seededProducts = await context.Products
+            .Include(p => p.Photos)
+            .Where(p => p.Name.StartsWith(SeedPrefix))
+            .ToListAsync();
+
+        if (seededProducts.Count > 0)
+        {
+            var seededProductIds = seededProducts.Select(p => p.Id).ToList();
+
+            var seededCartItems = await context.CartItems
+                .Where(c => seededProductIds.Contains(c.ProductId))
+                .ToListAsync();
+
+            if (seededCartItems.Count > 0)
+            {
+                context.CartItems.RemoveRange(seededCartItems);
+            }
+
+            var seededFavorites = await context.Favorites
+                .Where(f => seededProductIds.Contains(f.ProductId))
+                .ToListAsync();
+
+            if (seededFavorites.Count > 0)
+            {
+                context.Favorites.RemoveRange(seededFavorites);
+            }
+
+            var seededPhotos = seededProducts
+                .SelectMany(p => p.Photos)
+                .ToList();
+
+            if (seededPhotos.Count > 0)
+            {
+                context.ProductPhotos.RemoveRange(seededPhotos);
+            }
+
+            context.Products.RemoveRange(seededProducts);
+            await context.SaveChangesAsync();
+        }
+
+        context.Products.AddRange(
             new Product
             {
                 Name = SeedPrefix + "Nike Air Zoom Pegasus 40",
@@ -58,7 +104,8 @@ public static class SeedData
                 SubCategory = "Shoes",
                 Price = 129.99m,
                 Gender = GenderTarget.Unisex,
-                Size = ProductSize.M,
+                SizeType = ProductSizeType.Shoes,
+                AvailableSizes = Product.NormalizeSizeList(ProductSizeType.Shoes, "39,40,41,42,43,44,45"),
                 Description = "Responsive running shoes built for daily training.",
                 ImagePath = "/images/NikeAirZoomPegasus40/main.jpg",
                 Photos = new List<ProductPhoto>
@@ -68,6 +115,7 @@ public static class SeedData
                     new ProductPhoto { ImagePath = "/images/NikeAirZoomPegasus40/4.jpg" }
                 }
             },
+
             new Product
             {
                 Name = SeedPrefix + "Adidas Predator Edge",
@@ -75,7 +123,8 @@ public static class SeedData
                 SubCategory = "Cleats",
                 Price = 199.99m,
                 Gender = GenderTarget.Men,
-                Size = ProductSize.L,
+                SizeType = ProductSizeType.Shoes,
+                AvailableSizes = Product.NormalizeSizeList(ProductSizeType.Shoes, "40,41,42,43,44,45,46"),
                 Description = "Precision football boots for maximum control.",
                 ImagePath = "/images/AdidasPredatorEdge/main.jpg",
                 Photos = new List<ProductPhoto>
@@ -85,6 +134,7 @@ public static class SeedData
                     new ProductPhoto { ImagePath = "/images/AdidasPredatorEdge/4.jpg" }
                 }
             },
+
             new Product
             {
                 Name = SeedPrefix + "Training T-Shirt DryFit",
@@ -92,7 +142,8 @@ public static class SeedData
                 SubCategory = "Apparel",
                 Price = 24.99m,
                 Gender = GenderTarget.Unisex,
-                Size = ProductSize.S,
+                SizeType = ProductSizeType.Clothing,
+                AvailableSizes = Product.NormalizeSizeList(ProductSizeType.Clothing, "XS,S,M,L,XL"),
                 Description = "Lightweight training tee for workouts.",
                 ImagePath = "/images/TrainingTShirtDryFit/main.jpg",
                 Photos = new List<ProductPhoto>
@@ -101,6 +152,7 @@ public static class SeedData
                     new ProductPhoto { ImagePath = "/images/TrainingTShirtDryFit/3.jpg" }
                 }
             },
+
             new Product
             {
                 Name = SeedPrefix + "Sport Socks Pro",
@@ -108,7 +160,8 @@ public static class SeedData
                 SubCategory = "Accessories",
                 Price = 14.99m,
                 Gender = GenderTarget.Unisex,
-                Size = ProductSize.Universal,
+                SizeType = ProductSizeType.Universal,
+                AvailableSizes = Product.NormalizeSizeList(ProductSizeType.Universal, "Universal"),
                 Description = "Breathable socks for everyday running.",
                 ImagePath = "/images/SportSocksPro/main.jpg",
                 Photos = new List<ProductPhoto>
@@ -116,6 +169,7 @@ public static class SeedData
                     new ProductPhoto { ImagePath = "/images/SportSocksPro/2.jpg" }
                 }
             },
+
             new Product
             {
                 Name = SeedPrefix + "Outdoor Wind Jacket",
@@ -123,25 +177,16 @@ public static class SeedData
                 SubCategory = "Apparel",
                 Price = 59.99m,
                 Gender = GenderTarget.Men,
-                Size = ProductSize.XL,
+                SizeType = ProductSizeType.Clothing,
+                AvailableSizes = Product.NormalizeSizeList(ProductSizeType.Clothing, "M,L,XL"),
                 Description = "Lightweight jacket for windy weather.",
                 ImagePath = "/images/OutdoorWindJacket/main.jpg",
                 Photos = new List<ProductPhoto>
                 {
-                    new ProductPhoto { ImagePath = "/images/OutdoorWindJacket/2.jpg" }
+                    new ProductPhoto { ImagePath = "/images/OutdoorWindJacket.jpg" }
                 }
             }
-        };
-
-        foreach (var product in productsToSeed)
-        {
-            var exists = await context.Products.AnyAsync(p => p.Name == product.Name);
-
-            if (!exists)
-            {
-                context.Products.Add(product);
-            }
-        }
+        );
 
         await context.SaveChangesAsync();
     }
