@@ -5,6 +5,7 @@
 
     var isFav = ViewBag.IsFavorite as bool? ?? false;
     var currentUrl = Context.Request.Path + Context.Request.QueryString;
+    var favoriteLabel = isFav ? "Премахни от любими" : "Добави в любими";
 
     var images = new List<string>();
     if (!string.IsNullOrWhiteSpace(Model.ImagePath))
@@ -36,107 +37,135 @@
     <div class="alert alert-warning">@TempData["CartMessage"]</div>
 }
 
-<div class="row g-4">
+<div class="row g-4 align-items-start">
     <div class="col-lg-6">
-        <div id="productCarousel" class="carousel slide">
-            <div class="carousel-inner rounded border">
-                @for (int i = 0; i < images.Count; i++)
+        <div class="ss-gallery-frame">
+            <div id="productCarousel" class="carousel slide">
+                <div class="carousel-inner rounded-4 overflow-hidden">
+                    @for (int i = 0; i < images.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : null)">
+                            <img src="@images[i]"
+                                 class="d-block w-100"
+                                 alt="@Model.Name"
+                                 style="max-height: 520px; object-fit: contain;" />
+                        </div>
+                    }
+                </div>
+
+                @if (images.Count > 1)
                 {
-                    <div class="carousel-item @(i == 0 ? "active" : null)">
-                        <img src="@images[i]" class="d-block w-100" alt="@Model.Name" style="max-height: 520px; object-fit: contain;" />
-                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+
+                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 }
             </div>
-
-            @if (images.Count > 1)
-            {
-                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-
-                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            }
         </div>
     </div>
 
     <div class="col-lg-6">
-        <h1>@Model.Name</h1>
+        <div class="ss-product-details-card">
+            <h1 class="mb-2">@Model.Name</h1>
 
-        <div class="text-muted mb-2">
-            @Model.Sport · @Model.SubCategory · @Model.Gender
-        </div>
+            <div class="text-muted mb-3 ss-product-details-meta">
+                @Model.Sport · @Model.SubCategory · @Model.Gender
+            </div>
 
-        <div class="mb-3">
-            <strong>Налични размери:</strong>
-            @foreach (var size in sizes)
+            <div class="mb-3">
+                <strong>Налични размери:</strong>
+                @foreach (var size in sizes)
+                {
+                    <span class="badge text-bg-secondary me-1">@size</span>
+                }
+            </div>
+
+            <div class="fs-4 fw-bold mb-3">
+                @Model.Price.ToString("0.00") лв.
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
-                <span class="badge text-bg-secondary me-1">@size</span>
+                <p class="mb-0">@Model.Description</p>
             }
-        </div>
 
-        <div class="fs-4 fw-bold mb-3">
-            @Model.Price.ToString("0.00") лв.
-        </div>
+            <div class="ss-action-panel">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <a asp-action="Index" class="btn btn-outline-secondary ss-action-btn w-100">
+                            <i class="bi bi-arrow-left"></i>
+                            <span>Назад</span>
+                        </a>
+                    </div>
 
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
-        {
-            <p>@Model.Description</p>
-        }
-
-        <div class="d-flex gap-2 flex-wrap mt-4">
-            <a asp-action="Index" class="btn btn-outline-secondary">Назад</a>
-
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex gap-2 align-items-end flex-wrap">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="productId" value="@Model.Id" />
-
-                    @if (sizes.Count == 1)
+                    @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <input type="hidden" name="selectedSize" value="@sizes[0]" />
+                        <div class="col-sm-6">
+                            <form asp-controller="Favorites" asp-action="Toggle" method="post" class="h-100">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@Model.Id" />
+                                <input type="hidden" name="returnUrl" value="@currentUrl" />
 
-                        <div>
-                            <label class="form-label">Размер</label>
-                            <input class="form-control" value="@sizes[0]" disabled />
+                                <button type="submit"
+                                        class="btn ss-favorite-btn ss-favorite-btn-wide @(isFav ? "active" : "") w-100"
+                                        title="@favoriteLabel"
+                                        aria-label="@favoriteLabel"
+                                        aria-pressed="@(isFav.ToString().ToLowerInvariant())">
+                                    <i class="bi @(isFav ? "bi-heart-fill" : "bi-heart")"></i>
+                                    <span>@favoriteLabel</span>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="col-12">
+                            <form asp-controller="Cart" asp-action="Add" method="post" class="row g-3 align-items-end">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@Model.Id" />
+
+                                <div class="col-md-7">
+                                    <label class="form-label fw-semibold" for="selectedSize">Размер</label>
+
+                                    @if (sizes.Count == 1)
+                                    {
+                                        <input type="hidden" name="selectedSize" value="@sizes[0]" />
+                                        <input class="form-control ss-size-input" value="@sizes[0]" disabled />
+                                    }
+                                    else
+                                    {
+                                        <select class="form-select ss-size-input" id="selectedSize" name="selectedSize" required>
+                                            <option value="">Избери размер...</option>
+                                            @foreach (var size in sizes)
+                                            {
+                                                <option value="@size">@size</option>
+                                            }
+                                        </select>
+                                    }
+                                </div>
+
+                                <div class="col-md-5 d-grid">
+                                    <button type="submit" class="btn btn-primary ss-action-btn ss-cart-submit">
+                                        <i class="bi bi-bag-plus"></i>
+                                        <span>Добави в количка</span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     }
                     else
                     {
-                        <div>
-                            <label class="form-label" for="selectedSize">Размер</label>
-                            <select class="form-select" id="selectedSize" name="selectedSize" required>
-                                <option value="">Избери размер...</option>
-                                @foreach (var size in sizes)
-                                {
-                                    <option value="@size">@size</option>
-                                }
-                            </select>
+                        <div class="col-12">
+                            <div class="alert alert-light border mb-0">
+                                За да добавяш в количка или любими, влез в профила си.
+                            </div>
                         </div>
                     }
-
-                    <button type="submit" class="btn btn-primary">Добави в количка</button>
-                </form>
-
-                <form asp-controller="Favorites" asp-action="Toggle" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    <input type="hidden" name="returnUrl" value="@currentUrl" />
-                    <button type="submit" class="btn btn-outline-dark">
-                        @(isFav ? "В любими" : "Добави в любими")
-                    </button>
-                </form>
-            }
-            else
-            {
-                <div class="text-muted">
-                    За да добавяш в количка или любими, влез в профила си.
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
