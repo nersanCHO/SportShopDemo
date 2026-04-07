@@ -300,6 +300,7 @@ public static class SeedData
                 }
             },
             ///////////////////guirmej ->
+            
             new Product
             {
                 Name = "Nike Elemental Backpack",
@@ -367,7 +368,7 @@ public static class SeedData
                     new ProductPhoto { ImagePath = "/images/NikeJordanPump/main.webp" }
 
                 }
-            }
+            }/*
             ,new Product
             {
                 Name = "Energetics Olimpic EZ Bar 150cm",
@@ -403,6 +404,7 @@ public static class SeedData
 
                 }
             }
+            */
 
         };
 
