@@ -184,11 +184,11 @@ public class CartController : Controller
             var price = it.Product?.Price ?? 0m;
 
             sb.AppendLine(
-                $"{it.Quantity} x {name} | Размер: {it.SelectedSize} | {price:0.00} лв. = {(price * it.Quantity):0.00} лв.");
+                $"{it.Quantity} x {name} | Размер: {it.SelectedSize} | {price:0.00} € = {(price * it.Quantity):0.00} €");
         }
 
         sb.AppendLine();
-        sb.AppendLine($"Крайна сума: {total:0.00} лв.");
+        sb.AppendLine($"Крайна сума: {total:0.00} €");
         sb.AppendLine();
         sb.AppendLine("Бележка: Това е демо checkout. Не се изпраща реален имейл.");
 

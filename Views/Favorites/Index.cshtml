@@ -40,7 +40,7 @@ else
                         <h5 class="card-title mt-1">
                             <a asp-controller="Products" asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none text-dark">@p.Name</a>
                         </h5>
-                        <div class="mb-2 fw-bold">@p.Price.ToString("0.00") лв.</div>
+                        <div class="mb-2 fw-bold">@p.Price.ToString("0.00") €</div>
                         <div class="mb-3 text-muted">@p.Gender · Размери: @p.DisplaySizes</div>
 
                         <div class="mt-auto d-flex gap-2 flex-wrap">

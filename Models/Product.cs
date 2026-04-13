@@ -37,7 +37,7 @@ public class Product
     [StringLength(80, ErrorMessage = "Полето Подкатегория може да бъде най-много 80 символа.")]
     public string SubCategory { get; set; } = string.Empty;
 
-    [Range(typeof(decimal), "0.01", "100000", ErrorMessage = "Цената трябва да бъде между 0.01 и 100000 лв.")]
+    [Range(typeof(decimal), "0.01", "100000", ErrorMessage = "Цената трябва да бъде между 0.01 и 100000 €")]
     public decimal Price { get; set; }
 
     public GenderTarget Gender { get; set; } = GenderTarget.Unisex;

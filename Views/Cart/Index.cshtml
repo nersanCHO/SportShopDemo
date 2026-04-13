@@ -81,8 +81,8 @@ else
                                 <div class="text-muted small">
                                     @(p?.Sport) · @(p?.SubCategory) · @(p?.Gender) · Размер: @i.SelectedSize
                                 </div>
-                                <div class="mt-2 fw-bold">@price.ToString("0.00") лв.</div>
-                                <div class="text-muted">Сума: @lineTotal.ToString("0.00") лв.</div>
+                                <div class="mt-2 fw-bold">@price.ToString("0.00") €</div>
+                                <div class="text-muted">Сума: @lineTotal.ToString("0.00") €</div>
                             </div>
 
                             <div class="col-md-4">
@@ -133,19 +133,19 @@ else
 
                     <div class="d-flex justify-content-between">
                         <span>Междинна сума</span>
-                        <strong>@total.ToString("0.00") лв.</strong>
+                        <strong>@total.ToString("0.00") €</strong>
                     </div>
 
                     <div class="d-flex justify-content-between">
                         <span>Доставка</span>
-                        <strong>0.00 лв. (демо)</strong>
+                        <strong>0.00 € (демо)</strong>
                     </div>
 
                     <hr />
 
                     <div class="d-flex justify-content-between fs-5">
                         <span>Общо</span>
-                        <strong>@total.ToString("0.00") лв.</strong>
+                        <strong>@total.ToString("0.00") €</strong>
                     </div>
                 </div>
             </div>
