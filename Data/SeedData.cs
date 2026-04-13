@@ -299,7 +299,7 @@ public static class SeedData
                     new ProductPhoto { ImagePath = "/images/NBABottle/3.webp" }
                 }
             },
-            ///////////////////guirmej ->
+            
             
             new Product
             {
@@ -367,7 +367,7 @@ public static class SeedData
                 {
                     new ProductPhoto { ImagePath = "/images/NikeJordanPump/main.webp" }
 
-                }
+                }///////////////////guirmej ->
             }/*
             ,new Product
             {

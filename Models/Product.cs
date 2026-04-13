@@ -20,33 +20,38 @@ public enum ProductSizeType
 public class Product
 {
     public static readonly string[] ClothingSizeOptions = { "XS", "S", "M", "L", "XL" };
+
     public static readonly string[] ShoeSizeOptions = { "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46" };
 
     public int Id { get; set; }
 
-    [Required, StringLength(120)]
+    [Required(ErrorMessage = "Полето Име е задължително.")]
+    [StringLength(120, ErrorMessage = "Името може да бъде най-много 120 символа.")]
     public string Name { get; set; } = string.Empty;
 
-    [Required, StringLength(80)]
+    [Required(ErrorMessage = "Полето Спорт е задължително.")]
+    [StringLength(80, ErrorMessage = "Полето Спорт може да бъде най-много 80 символа.")]
     public string Sport { get; set; } = string.Empty;
 
-    [Required, StringLength(80)]
+    [Required(ErrorMessage = "Полето Подкатегория е задължително.")]
+    [StringLength(80, ErrorMessage = "Полето Подкатегория може да бъде най-много 80 символа.")]
     public string SubCategory { get; set; } = string.Empty;
 
-    [Range(0.01, 100000)]
+    [Range(typeof(decimal), "0.01", "100000", ErrorMessage = "Цената трябва да бъде между 0.01 и 100000 лв.")]
     public decimal Price { get; set; }
 
     public GenderTarget Gender { get; set; } = GenderTarget.Unisex;
 
     public ProductSizeType SizeType { get; set; } = ProductSizeType.Universal;
 
-    [Required, StringLength(200)]
+    [Required(ErrorMessage = "Полето Размер е задължително.")]
+    [StringLength(200, ErrorMessage = "Полето Размер може да бъде най-много 200 символа.")]
     public string AvailableSizes { get; set; } = "Universal";
 
-    [StringLength(800)]
+    [StringLength(800, ErrorMessage = "Описанието може да бъде най-много 800 символа.")]
     public string? Description { get; set; }
 
-    [StringLength(260)]
+    [StringLength(260, ErrorMessage = "Пътят до снимката може да бъде най-много 260 символа.")]
     public string ImagePath { get; set; } = "/images/products/default.png";
 
     public List<ProductPhoto> Photos { get; set; } = new();
@@ -72,6 +77,7 @@ public class Product
     public bool HasAvailableSize(string? size)
     {
         var normalized = NormalizeSingleSize(SizeType, size);
+
         if (string.IsNullOrWhiteSpace(normalized))
         {
             return false;
@@ -119,11 +125,9 @@ public class Product
 
         if (sizeType == ProductSizeType.Clothing)
         {
-            return ClothingSizeOptions.FirstOrDefault(x => x.Equals(incoming, StringComparison.OrdinalIgnoreCase))
-                   ?? string.Empty;
+            return ClothingSizeOptions.FirstOrDefault(x => x.Equals(incoming, StringComparison.OrdinalIgnoreCase)) ?? string.Empty;
         }
 
-        return ShoeSizeOptions.FirstOrDefault(x => x.Equals(incoming, StringComparison.OrdinalIgnoreCase))
-               ?? string.Empty;
+        return ShoeSizeOptions.FirstOrDefault(x => x.Equals(incoming, StringComparison.OrdinalIgnoreCase)) ?? string.Empty;
     }
 }
