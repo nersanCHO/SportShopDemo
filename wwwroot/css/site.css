@@ -619,3 +619,31 @@ main.container {
         width: 100%;
     }
 }
+/* Cards */
+.ss-card {
+    border: 1px solid var(--ss-border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 22px rgba(2, 6, 23, .10);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+    .ss-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 40px rgba(2, 6, 23, .18);
+    }
+
+.ss-card-img {
+    height: 220px;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    padding: 12px;
+    background: #fff;
+    transition: none;
+}
+
+.ss-card:hover .ss-card-img {
+    transform: none;
+}
