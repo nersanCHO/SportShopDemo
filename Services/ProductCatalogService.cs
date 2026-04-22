@@ -4,15 +4,25 @@ using SportShop.Models;
 
 namespace SportShop.Services;
 
+/// <summary>
+/// Provides read-only catalog functionality such as filtering products,
+/// loading distinct categories, and retrieving product details.
+/// </summary>
 public class ProductCatalogService
 {
     private readonly ApplicationDbContext _db;
 
+    /// <summary>
+    /// Creates the service with a database context dependency.
+    /// </summary>
     public ProductCatalogService(ApplicationDbContext db)
     {
         _db = db;
     }
 
+    /// <summary>
+    /// Returns the product list filtered by the optional search parameters.
+    /// </summary>
     public async Task<List<Product>> GetFilteredProductsAsync(
         GenderTarget? gender,
         string? sport,
@@ -61,6 +71,9 @@ public class ProductCatalogService
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Returns all distinct sports used in the product catalog.
+    /// </summary>
     public async Task<List<string>> GetSportsAsync()
     {
         return await _db.Products
@@ -70,6 +83,9 @@ public class ProductCatalogService
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Returns all distinct product subcategories.
+    /// </summary>
     public async Task<List<string>> GetSubCategoriesAsync()
     {
         return await _db.Products
@@ -79,6 +95,9 @@ public class ProductCatalogService
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Returns a single product by ID including its photos.
+    /// </summary>
     public async Task<Product?> GetByIdWithPhotosAsync(int id)
     {
         return await _db.Products

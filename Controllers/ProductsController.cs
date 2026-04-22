@@ -5,12 +5,18 @@ using SportShop.Services;
 
 namespace SportShop.Controllers;
 
+/// <summary>
+/// Handles public product browsing, filtering, and product details.
+/// </summary>
 public class ProductsController : Controller
 {
     private readonly ProductCatalogService _productCatalogService;
     private readonly FavoritesService _favoritesService;
     private readonly UserManager<ApplicationUser> _userManager;
 
+    /// <summary>
+    /// Creates the controller with the required services.
+    /// </summary>
     public ProductsController(
         ProductCatalogService productCatalogService,
         FavoritesService favoritesService,
@@ -21,6 +27,9 @@ public class ProductsController : Controller
         _userManager = userManager;
     }
 
+    /// <summary>
+    /// Displays the catalog page with optional filters.
+    /// </summary>
     public async Task<IActionResult> Index(
         GenderTarget? gender,
         string? sport,
@@ -33,6 +42,7 @@ public class ProductsController : Controller
         ViewBag.SubCategories = await _productCatalogService.GetSubCategoriesAsync();
 
         var userId = _userManager.GetUserId(User);
+
         ViewBag.FavoriteIds = string.IsNullOrEmpty(userId)
             ? new List<int>()
             : await _favoritesService.GetFavoriteProductIdsAsync(userId);
@@ -48,15 +58,20 @@ public class ProductsController : Controller
         return View(products);
     }
 
+    /// <summary>
+    /// Displays detailed information for a single product.
+    /// </summary>
     public async Task<IActionResult> Details(int id)
     {
         var product = await _productCatalogService.GetByIdWithPhotosAsync(id);
+
         if (product == null)
         {
             return NotFound();
         }
 
         var userId = _userManager.GetUserId(User);
+
         ViewBag.IsFavorite = !string.IsNullOrEmpty(userId) &&
                              await _favoritesService.IsFavoriteAsync(userId, id);
 

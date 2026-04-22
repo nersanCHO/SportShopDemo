@@ -367,44 +367,8 @@ public static class SeedData
                 {
                     new ProductPhoto { ImagePath = "/images/NikeJordanPump/main.webp" }
 
-                }///////////////////guirmej ->
-            }/*
-            ,new Product
-            {
-                Name = "Energetics Olimpic EZ Bar 150cm",
-                Sport = "Fitness",
-                SubCategory = "Apparel",
-                Price = 109.41m,
-                Gender = GenderTarget.Unisex,
-                SizeType = ProductSizeType.Universal,
-                AvailableSizes = Product.NormalizeSizeList(ProductSizeType.Universal,"Universal"),
-                Description = "Олимпийски крив лост от ENERGETICS, ексклузивната марка на INTERSPORT.\r\nТози уред за фитнес е подходящ за трениращи с всякакво ниво на физическа подготовка. Извитата му W-образна форма предпазва най-вече китките на ръцете. Може да се използва и в хотели, студиа и спортни зали.\r\nПодходящ за високоинтензивни тренировки с максимално натоварване до 220 кг и може да поема дискове с тежести с диаметър 50 мм. Изработен от висококачествена стомана Q235 за максимална здравина и издръжливост, с неплъзгащи се дръжки с диаметър 28 мм за максимална стабилност по време на тренировка. Има система за завинтване с медни гайки. Подходящ както за тренировки с тежести, така и за използване върху лежанка и ви дава възможност за упражнения за укрепване и оформяне на гърдите, гърба, раменете, бицепсите, трицепсите, гърба и др.\r\n",
-                ImagePath = "/images/EnergeticsOlimpicEZBar/main.webp",
-                Photos = new List<ProductPhoto>
-                {
-                    new ProductPhoto { ImagePath = "/images/EnergeticsOlimpicEZBar/2.webp" },
-                    new ProductPhoto { ImagePath = "/images/EnergeticsOlimpicEZBar/3.webp" },
-
-                }
-            },new Product
-            {
-                Name = "Energetics Olimpic Bar 200cm",
-                Sport = "Fitness",
-                SubCategory = "Apparel",
-                Price = 139.07m,
-                Gender = GenderTarget.Unisex,
-                SizeType = ProductSizeType.Universal,
-                AvailableSizes = Product.NormalizeSizeList(ProductSizeType.Universal,"Universal"),
-                Description = "Олимпийски лост от ENERGETICS, ексклузивна марка на INTERSPORT.\r\nТози уред за фитнес е подходящ за трениращи с всякакво ниво на физическа подготовка. Може да се използва и в хотели, студиа и спортни зали.\r\nПодходящ за високоинтензивни тренировки с максимално натоварване до 220 кг и може да поема дискове с тежести с диаметър 50 мм. Изработен от висококачествена стомана Q235 за максимална здравина и издръжливост, с неплъзгащи се дръжки с диаметър 28 мм за максимална стабилност по време на тренировка. Има система за завинтване с медни гайки. Подходящ както за тренировки с тежести, така и за използване върху лежанка и ви дава възможност за упражнения за укрепване и оформяне на гърдите, гърба, раменете, бицепсите, трицепсите, гърба и др.",
-                ImagePath = "/images/EnergeticsOlimpicBar/main.webp",
-                Photos = new List<ProductPhoto>
-                {
-                    new ProductPhoto { ImagePath = "/images/EnergeticsOlimpicBar/main.webp" }
-
-
                 }
             }
-            */
 
         };
 

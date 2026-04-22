@@ -4,11 +4,18 @@ using SportShop.Models;
 
 namespace SportShop.Services;
 
+/// <summary>
+/// Handles shopping cart operations such as loading items, adding products,
+/// changing quantities, removing items, and completing checkout.
+/// </summary>
 public class CartService
 {
     private readonly ApplicationDbContext _db;
     private readonly OrderEmailService _orderEmailService;
 
+    /// <summary>
+    /// Creates the service with its required dependencies.
+    /// </summary>
     public CartService(
         ApplicationDbContext db,
         OrderEmailService orderEmailService)
@@ -17,6 +24,9 @@ public class CartService
         _orderEmailService = orderEmailService;
     }
 
+    /// <summary>
+    /// Returns all cart items for a specific user, including product data.
+    /// </summary>
     public async Task<List<CartItem>> GetUserCartItemsAsync(string userId)
     {
         return await _db.CartItems
@@ -25,18 +35,25 @@ public class CartService
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Calculates the total cost of the current cart items.
+    /// </summary>
     public decimal GetCartTotal(IEnumerable<CartItem> items)
     {
         return items.Sum(i => (i.Product?.Price ?? 0m) * i.Quantity);
     }
 
+    /// <summary>
+    /// Adds a product to the cart. If the same product/size already exists,
+    /// the quantity is increased instead of creating a duplicate row.
+    /// </summary>
     public async Task<ServiceResult> AddAsync(string userId, int productId, string? selectedSize)
     {
         var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == productId);
 
         if (product == null)
         {
-            return ServiceResult.Missing();
+            return ServiceResult.Missing("Продуктът не беше намерен.");
         }
 
         var normalizedSize = Product.NormalizeSingleSize(product.SizeType, selectedSize);
@@ -70,6 +87,10 @@ public class CartService
         return ServiceResult.Ok();
     }
 
+    /// <summary>
+    /// Decreases quantity for a cart item. If quantity reaches zero,
+    /// the item is removed completely.
+    /// </summary>
     public async Task DecreaseAsync(string userId, int cartItemId)
     {
         var item = await _db.CartItems
@@ -90,6 +111,9 @@ public class CartService
         await _db.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Removes a cart item entirely.
+    /// </summary>
     public async Task RemoveAsync(string userId, int cartItemId)
     {
         var item = await _db.CartItems
@@ -104,6 +128,10 @@ public class CartService
         await _db.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Completes checkout by sending the order confirmation through the email service,
+    /// then clearing the cart if the operation succeeds.
+    /// </summary>
     public async Task<ServiceResult> CheckoutAsync(
         string userId,
         string? userEmail,

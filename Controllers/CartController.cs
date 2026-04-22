@@ -6,6 +6,9 @@ using SportShop.Services;
 
 namespace SportShop.Controllers;
 
+/// <summary>
+/// Handles authenticated shopping cart operations and checkout.
+/// </summary>
 [Authorize]
 public class CartController : Controller
 {
@@ -13,6 +16,9 @@ public class CartController : Controller
     private readonly FavoritesService _favoritesService;
     private readonly UserManager<ApplicationUser> _userManager;
 
+    /// <summary>
+    /// Creates the controller with the required services.
+    /// </summary>
     public CartController(
         CartService cartService,
         FavoritesService favoritesService,
@@ -23,17 +29,23 @@ public class CartController : Controller
         _userManager = userManager;
     }
 
+    /// <summary>
+    /// Displays the current user's cart.
+    /// </summary>
     public async Task<IActionResult> Index()
     {
         var userId = _userManager.GetUserId(User)!;
-
         var items = await _cartService.GetUserCartItemsAsync(userId);
+
         ViewBag.Total = _cartService.GetCartTotal(items);
         ViewBag.FavoriteIds = await _favoritesService.GetFavoriteProductIdsAsync(userId);
 
         return View(items);
     }
 
+    /// <summary>
+    /// Adds a product to the current user's cart.
+    /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(int productId, string? selectedSize)
@@ -55,6 +67,9 @@ public class CartController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    /// Decreases quantity for one cart row.
+    /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Decrease(int cartItemId)
@@ -64,6 +79,9 @@ public class CartController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    /// Removes a cart row completely.
+    /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Remove(int cartItemId)
@@ -73,6 +91,9 @@ public class CartController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    /// <summary>
+    /// Processes checkout for the current user's cart.
+    /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Checkout(OrderInputModel input)
@@ -86,9 +107,13 @@ public class CartController : Controller
         var userId = _userManager.GetUserId(User)!;
         var user = await _userManager.GetUserAsync(User);
 
-        var result = await _cartService.CheckoutAsync(userId, user?.Email, user?.UserName, input);
-        TempData["OrderMessage"] = result.Message;
+        var result = await _cartService.CheckoutAsync(
+            userId,
+            user?.Email,
+            user?.UserName,
+            input);
 
+        TempData["OrderMessage"] = result.Message;
         return RedirectToAction(nameof(Index));
     }
 }

@@ -6,12 +6,18 @@ using SportShop.Services;
 
 namespace SportShop.Controllers;
 
+/// <summary>
+/// Manages the authenticated user's favorites list.
+/// </summary>
 [Authorize]
 public class FavoritesController : Controller
 {
     private readonly FavoritesService _favoritesService;
     private readonly UserManager<ApplicationUser> _userManager;
 
+    /// <summary>
+    /// Creates the controller with the required dependencies.
+    /// </summary>
     public FavoritesController(
         FavoritesService favoritesService,
         UserManager<ApplicationUser> userManager)
@@ -20,6 +26,9 @@ public class FavoritesController : Controller
         _userManager = userManager;
     }
 
+    /// <summary>
+    /// Displays the current user's favorite products.
+    /// </summary>
     public async Task<IActionResult> Index()
     {
         var userId = _userManager.GetUserId(User)!;
@@ -27,6 +36,9 @@ public class FavoritesController : Controller
         return View(favorites);
     }
 
+    /// <summary>
+    /// Toggles a product in or out of the user's favorites.
+    /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Toggle(int productId, string? returnUrl = null)

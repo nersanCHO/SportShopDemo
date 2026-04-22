@@ -6,17 +6,26 @@ using SportShop.Models;
 
 namespace SportShop.Services;
 
+/// <summary>
+/// Provides administrative operations for managing products and product images.
+/// </summary>
 public class AdminProductService
 {
     private readonly ApplicationDbContext _db;
     private readonly IWebHostEnvironment _env;
 
+    /// <summary>
+    /// Creates the service with its required dependencies.
+    /// </summary>
     public AdminProductService(ApplicationDbContext db, IWebHostEnvironment env)
     {
         _db = db;
         _env = env;
     }
 
+    /// <summary>
+    /// Returns all products sorted by name.
+    /// </summary>
     public async Task<List<Product>> GetAllAsync()
     {
         return await _db.Products
@@ -24,11 +33,17 @@ public class AdminProductService
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Returns a single product by ID.
+    /// </summary>
     public async Task<Product?> GetByIdAsync(int id)
     {
         return await _db.Products.FindAsync(id);
     }
 
+    /// <summary>
+    /// Returns a single product by ID including its photos.
+    /// </summary>
     public async Task<Product?> GetByIdWithPhotosAsync(int id)
     {
         return await _db.Products
@@ -36,6 +51,9 @@ public class AdminProductService
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+    /// <summary>
+    /// Returns all photos for a given product.
+    /// </summary>
     public async Task<List<ProductPhoto>> GetPhotosAsync(int productId)
     {
         return await _db.ProductPhotos
@@ -43,6 +61,9 @@ public class AdminProductService
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Validates and normalizes product sizing before save.
+    /// </summary>
     public ServiceResult ValidateProduct(Product model)
     {
         model.AvailableSizes = Product.NormalizeSizeList(model.SizeType, model.AvailableSizes);
@@ -61,14 +82,19 @@ public class AdminProductService
         return ServiceResult.Ok();
     }
 
+    /// <summary>
+    /// Creates a new product and saves any uploaded images.
+    /// </summary>
     public async Task CreateAsync(Product model, IFormFile? titleImage, IFormFileCollection? images)
     {
         await AddImagesToNewProductAsync(model, titleImage, images);
-
         _db.Products.Add(model);
         await _db.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Updates an existing product and appends any new uploaded images.
+    /// </summary>
     public async Task<bool> UpdateAsync(int id, Product model, IFormFile? titleImage, IFormFileCollection? images)
     {
         var existing = await _db.Products
@@ -124,6 +150,9 @@ public class AdminProductService
         return true;
     }
 
+    /// <summary>
+    /// Deletes a product and all of its image files.
+    /// </summary>
     public async Task<bool> DeleteAsync(int id)
     {
         var product = await _db.Products
@@ -144,9 +173,13 @@ public class AdminProductService
 
         _db.Products.Remove(product);
         await _db.SaveChangesAsync();
+
         return true;
     }
 
+    /// <summary>
+    /// Deletes a single product photo.
+    /// </summary>
     public async Task DeletePhotoAsync(int photoId, int productId)
     {
         var photo = await _db.ProductPhotos
@@ -162,6 +195,9 @@ public class AdminProductService
         await _db.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Saves title and gallery images when a new product is created.
+    /// </summary>
     private async Task AddImagesToNewProductAsync(Product model, IFormFile? titleImage, IFormFileCollection? images)
     {
         if (titleImage is { Length: > 0 })
@@ -190,6 +226,10 @@ public class AdminProductService
         }
     }
 
+    /// <summary>
+    /// Saves an uploaded image file to wwwroot/images/products and returns
+    /// the relative path used by the application.
+    /// </summary>
     private async Task<string> SaveImageAsync(IFormFile image)
     {
         var folder = Path.Combine(_env.WebRootPath, "images", "products");
@@ -204,6 +244,9 @@ public class AdminProductService
         return $"/images/products/{fileName}";
     }
 
+    /// <summary>
+    /// Tries to delete a previously saved product image from disk.
+    /// </summary>
     private void TryDeleteFile(string? imagePath)
     {
         if (string.IsNullOrWhiteSpace(imagePath))
