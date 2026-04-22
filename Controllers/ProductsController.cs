@@ -1,19 +1,23 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SportShop.Data;
 using SportShop.Models;
+using SportShop.Services;
 
 namespace SportShop.Controllers;
 
 public class ProductsController : Controller
 {
-    private readonly ApplicationDbContext _db;
+    private readonly ProductCatalogService _productCatalogService;
+    private readonly FavoritesService _favoritesService;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public ProductsController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+    public ProductsController(
+        ProductCatalogService productCatalogService,
+        FavoritesService favoritesService,
+        UserManager<ApplicationUser> userManager)
     {
-        _db = db;
+        _productCatalogService = productCatalogService;
+        _favoritesService = favoritesService;
         _userManager = userManager;
     }
 
@@ -25,62 +29,36 @@ public class ProductsController : Controller
         decimal? maxPrice,
         string? q)
     {
-        var products = _db.Products.AsQueryable();
+        ViewBag.Sports = await _productCatalogService.GetSportsAsync();
+        ViewBag.SubCategories = await _productCatalogService.GetSubCategoriesAsync();
 
-        if (!string.IsNullOrWhiteSpace(q))
-            products = products.Where(p => p.Name.Contains(q) || (p.Description ?? "").Contains(q));
-
-        if (gender.HasValue)
-            products = products.Where(p => p.Gender == gender.Value);
-
-        if (!string.IsNullOrWhiteSpace(sport))
-            products = products.Where(p => p.Sport == sport);
-
-        if (!string.IsNullOrWhiteSpace(subCategory))
-            products = products.Where(p => p.SubCategory == subCategory);
-
-        if (minPrice.HasValue)
-            products = products.Where(p => p.Price >= minPrice.Value);
-
-        if (maxPrice.HasValue)
-            products = products.Where(p => p.Price <= maxPrice.Value);
-
-        ViewBag.Sports = await _db.Products.Select(p => p.Sport).Distinct().OrderBy(x => x).ToListAsync();
-        ViewBag.SubCategories = await _db.Products.Select(p => p.SubCategory).Distinct().OrderBy(x => x).ToListAsync();
-
-        // Load favourite ids for the current user
         var userId = _userManager.GetUserId(User);
-        if (!string.IsNullOrEmpty(userId))
-        {
-            var favIds = await _db.Favorites.Where(f => f.UserId == userId).Select(f => f.ProductId).ToListAsync();
-            ViewBag.FavoriteIds = favIds;
-        }
-        else
-        {
-            ViewBag.FavoriteIds = new List<int>();
-        }
+        ViewBag.FavoriteIds = string.IsNullOrEmpty(userId)
+            ? new List<int>()
+            : await _favoritesService.GetFavoriteProductIdsAsync(userId);
 
-        // include photos so views can pick first photo
-        products = products.Include(p => p.Photos);
+        var products = await _productCatalogService.GetFilteredProductsAsync(
+            gender,
+            sport,
+            subCategory,
+            minPrice,
+            maxPrice,
+            q);
 
-        return View(await products.OrderBy(p => p.Name).ToListAsync());
+        return View(products);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var product = await _db.Products.Include(p => p.Photos).FirstOrDefaultAsync(p => p.Id == id);
-        if (product == null) return NotFound();
+        var product = await _productCatalogService.GetByIdWithPhotosAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
 
         var userId = _userManager.GetUserId(User);
-        if (!string.IsNullOrEmpty(userId))
-        {
-            var exists = await _db.Favorites.AnyAsync(f => f.UserId == userId && f.ProductId == id);
-            ViewBag.IsFavorite = exists;
-        }
-        else
-        {
-            ViewBag.IsFavorite = false;
-        }
+        ViewBag.IsFavorite = !string.IsNullOrEmpty(userId) &&
+                             await _favoritesService.IsFavoriteAsync(userId, id);
 
         return View(product);
     }

@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SportShop.Data;
 using SportShop.Models;
+using SportShop.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
 // Add Razor Pages so Identity's default UI (Areas/Identity) is available
 builder.Services.AddRazorPages();
 
@@ -30,6 +32,11 @@ builder.Services
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
+builder.Services.AddScoped<ProductCatalogService>();
+builder.Services.AddScoped<FavoritesService>();
+builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<AdminProductService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -40,9 +47,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

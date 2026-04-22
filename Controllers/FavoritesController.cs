@@ -1,34 +1,29 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SportShop.Data;
 using SportShop.Models;
+using SportShop.Services;
 
 namespace SportShop.Controllers;
 
 [Authorize]
 public class FavoritesController : Controller
 {
-    private readonly ApplicationDbContext _db;
+    private readonly FavoritesService _favoritesService;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public FavoritesController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+    public FavoritesController(
+        FavoritesService favoritesService,
+        UserManager<ApplicationUser> userManager)
     {
-        _db = db;
+        _favoritesService = favoritesService;
         _userManager = userManager;
     }
 
     public async Task<IActionResult> Index()
     {
         var userId = _userManager.GetUserId(User)!;
-
-        var favorites = await _db.Favorites
-            .Include(f => f.Product)
-            .Where(f => f.UserId == userId)
-            .Select(f => f.Product!)
-            .ToListAsync();
-
+        var favorites = await _favoritesService.GetUserFavoritesAsync(userId);
         return View(favorites);
     }
 
@@ -37,18 +32,12 @@ public class FavoritesController : Controller
     public async Task<IActionResult> Toggle(int productId, string? returnUrl = null)
     {
         var userId = _userManager.GetUserId(User)!;
+        await _favoritesService.ToggleAsync(userId, productId);
 
-        var existing = await _db.Favorites.FirstOrDefaultAsync(f => f.UserId == userId && f.ProductId == productId);
-        if (existing == null)
-            _db.Favorites.Add(new Favorite { UserId = userId, ProductId = productId });
-        else
-            _db.Favorites.Remove(existing);
-
-        await _db.SaveChangesAsync();
-
-        // If a local returnUrl was provided, go back there (e.g. cart); otherwise go to product details
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
             return Redirect(returnUrl);
+        }
 
         return RedirectToAction("Details", "Products", new { id = productId });
     }
