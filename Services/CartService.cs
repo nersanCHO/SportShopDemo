@@ -1,6 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SportShop.Data;
 using SportShop.Models;
 
@@ -9,12 +7,14 @@ namespace SportShop.Services;
 public class CartService
 {
     private readonly ApplicationDbContext _db;
-    private readonly IWebHostEnvironment _env;
+    private readonly OrderEmailService _orderEmailService;
 
-    public CartService(ApplicationDbContext db, IWebHostEnvironment env)
+    public CartService(
+        ApplicationDbContext db,
+        OrderEmailService orderEmailService)
     {
         _db = db;
-        _env = env;
+        _orderEmailService = orderEmailService;
     }
 
     public async Task<List<CartItem>> GetUserCartItemsAsync(string userId)
@@ -33,6 +33,7 @@ public class CartService
     public async Task<ServiceResult> AddAsync(string userId, int productId, string? selectedSize)
     {
         var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == productId);
+
         if (product == null)
         {
             return ServiceResult.Missing();
@@ -109,6 +110,11 @@ public class CartService
         string? userName,
         OrderInputModel input)
     {
+        if (string.IsNullOrWhiteSpace(userEmail))
+        {
+            return ServiceResult.Fail("Няма намерен имейл за този акаунт.");
+        }
+
         var items = await _db.CartItems
             .Include(c => c.Product)
             .Where(c => c.UserId == userId)
@@ -121,53 +127,25 @@ public class CartService
 
         var total = GetCartTotal(items);
 
-        var sb = new StringBuilder();
-        sb.AppendLine("SportShop - Нова поръчка (демо)");
-        sb.AppendLine();
-        sb.AppendLine($"Клиент: {input.FullName}");
-        sb.AppendLine($"Имейл: {userEmail}");
-        sb.AppendLine($"Телефон: {input.Phone}");
-        sb.AppendLine($"Адрес: {input.Address}");
-        sb.AppendLine();
-        sb.AppendLine("Артикули:");
-
-        foreach (var item in items)
-        {
-            var productName = item.Product?.Name ?? "N/A";
-            var price = item.Product?.Price ?? 0m;
-
-            sb.AppendLine(
-                $"{item.Quantity} x {productName} | Размер: {item.SelectedSize} | {price:0.00} € = {(price * item.Quantity):0.00} €");
-        }
-
-        sb.AppendLine();
-        sb.AppendLine($"Крайна сума: {total:0.00} €");
-        sb.AppendLine();
-        sb.AppendLine("Бележка: Това е демо checkout. Не се изпраща реален имейл.");
-
         try
         {
-            var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            var ordersDir = Path.Combine(webRoot, "orders");
-            Directory.CreateDirectory(ordersDir);
-
-            var safeName = string.IsNullOrWhiteSpace(userName)
-                ? "guest"
-                : userName.Replace(" ", "_");
-
-            var fileName = $"order_{DateTime.UtcNow:yyyyMMdd_HHmmss}_{safeName}.txt";
-            var filePath = Path.Combine(ordersDir, fileName);
-
-            await File.WriteAllTextAsync(filePath, sb.ToString(), Encoding.UTF8);
+            await _orderEmailService.SendOrderConfirmationAsync(
+                toEmail: userEmail,
+                customerName: input.FullName,
+                address: input.Address,
+                phone: input.Phone,
+                items: items,
+                total: total);
 
             _db.CartItems.RemoveRange(items);
             await _db.SaveChangesAsync();
 
-            return ServiceResult.Ok("Поръчката е изпратена. Файлът е записан в wwwroot/orders като .txt (демо).");
+            return ServiceResult.Ok(
+                $"Поръчката е изпратена успешно. Имейл за потвърждение беше изпратен до {userEmail}.");
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail("Грешка при записването на поръчката: " + ex.Message);
+            return ServiceResult.Fail("Грешка при изпращане на имейла: " + ex.Message);
         }
     }
 }

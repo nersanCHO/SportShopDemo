@@ -36,7 +36,7 @@ builder.Services.AddScoped<ProductCatalogService>();
 builder.Services.AddScoped<FavoritesService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<AdminProductService>();
-
+builder.Services.AddScoped<OrderEmailService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
